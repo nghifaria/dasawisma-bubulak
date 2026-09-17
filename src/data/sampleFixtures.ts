@@ -1,0 +1,145 @@
+/**
+ * Fixtures Uji Unit Resmi & Fallback Data Respon Aktual Kader RW 12
+ * Sesuai spesifikasi sprint 1 dan data lapangan resmi
+ */
+
+import { FamilyEntity, Buku2RawRow, Buku3RawRow } from '@/types/dasawisma';
+
+/**
+ * Fixture Lengkap Buku 1: Keluarga Agus Setiawan (RW 12, RT 02)
+ */
+export const SAMPLE_BUKU1_FIXTURE: FamilyEntity = {
+  id: 1,
+  timestamp: '9/17/2026 19:17:51',
+  nama_pengisi: 'Lazuardi Putra',
+  nama_dasawisma: 'RW 12A - KENANGA A',
+  no_kk: '3271041508880001',
+  rt: '02',
+  rw: '12',
+  nama_krt: 'Agus Setiawan',
+  jml_anggota: 3,
+  jml_laki: 2,
+  jml_perempuan: 1,
+  balita: 1,
+  pus: 1,
+  wus: 1,
+  buta3: 0,
+  ibu_hamil: 0,
+  ibu_menyusui: 1,
+  lansia: 0,
+  makanan_pokok: 'Beras',
+  mck_septictank: 'Ya',
+  jml_mck: 1,
+  sumber_air: 'PDAM',
+  tempat_sampah: 'Ya',
+  spal: 'Ya',
+  kriteria_rumah: 'Sehat',
+  up2k: 'Ya',
+  kesling: 'Tidak',
+  catatan_tambahan: '',
+  anggota_warga: [
+    {
+      no_kk: '3271041508880001',
+      urutan_anggota: 1,
+      nama: 'Agus Setiawan',
+      status_keluarga: 'Kepala Keluarga',
+      status_kawin: 'Kawin',
+      jenis_kelamin: 'L',
+      tanggal_lahir: '8/15/1988',
+      usia: 38,
+      pendidikan: 'SMA/SMK',
+      pekerjaan: 'Karyawan Swasta',
+    },
+    {
+      no_kk: '3271041508880001',
+      urutan_anggota: 2,
+      nama: 'Dewi Lestari',
+      status_keluarga: 'Istri',
+      status_kawin: 'Kawin',
+      jenis_kelamin: 'P',
+      tanggal_lahir: '11/20/1992',
+      usia: 33,
+      pendidikan: 'SMA/SMK',
+      pekerjaan: 'Ibu Rumah Tangga (IRT)',
+    },
+    {
+      no_kk: '3271041508880001',
+      urutan_anggota: 3,
+      nama: 'Rayyan Pratama',
+      status_keluarga: 'Anak',
+      status_kawin: 'Belum Kawin',
+      jenis_kelamin: 'L',
+      tanggal_lahir: '5/10/2023',
+      usia: 3,
+      pendidikan: 'Tidak/Belum Sekolah',
+      pekerjaan: 'Belum / Tidak Bekerja',
+    },
+  ],
+};
+
+/**
+ * Fixture Lengkap Buku 2: Rekapitulasi Lingkungan & Partisipasi Kegiatan
+ */
+export const SAMPLE_BUKU2_FIXTURE: Buku2RawRow = {
+  timestamp: '9/17/2026 19:22:10',
+  nama_pengisi: 'Lazuardi Putra',
+  nama_dasawisma: 'RW 12A - KENANGA A',
+  no_kk: '3271041508880001',
+  rt: '02',
+  rw: '12',
+  nama_krt: 'Agus Setiawan',
+  jml_kk: 1,
+  total_l: 2,
+  total_p: 1,
+  balita_l: 1,
+  balita_p: 0,
+  pus: 1,
+  wus: 1,
+  bumil: 0,
+  menyusui: 1,
+  lansia: 0,
+  buta3: 0,
+  berkebutuhan_khusus: 0,
+  kriteria_rumah: 'Sehat',
+  tempat_sampah: 'Ya',
+  spal: 'Ya',
+  mck_septictank: 'Ya',
+  sumber_air: 'PDAM',
+  makanan: 'Beras',
+  kegiatan_up2k: 'Ya',
+  kegiatan_pekarangan: 'Tidak',
+  kegiatan_irt: 'Tidak',
+  kegiatan_kerjabakti: 'Ya',
+  keterangan: 'Warga Mengikuti Kegiatan: UP2K, Kerja Bakti',
+};
+
+/**
+ * Fixture Lengkap Buku 3: Catatan Peristiwa KIA & Mortalitas
+ */
+export const SAMPLE_BUKU3_FIXTURE: Buku3RawRow = {
+  timestamp: '9/17/2026 19:30:32',
+  nama_pengisi: 'Lazuardi Putra',
+  nama_dasawisma: 'RW 12A - KENANGA A',
+  no_kk: '3271041508880001',
+  rt: '02',
+  rw: '12',
+  nama_krt: 'Agus Setiawan',
+  nama_ibu: 'Dewi Lestari',
+  nama_suami: 'Agus Setiawan',
+  status_ibu: 'Melahirkan',
+  nama_bayi: 'Rayyan Pratama',
+  jenis_kelamin_bayi: 'Laki-laki',
+  tanggal_lahir_bayi: '10/5/2023',
+  akta_kelahiran: 'Ada',
+  bayi_hidup: 'Ya',
+  kematian_nama: '',
+  kematian_status: '',
+  kematian_gender: '',
+  kematian_tanggal: '',
+  kematian_sebab: '',
+  jml_bumil: 0,
+  jml_melahirkan: 1,
+  jml_nifas: 0,
+  jml_meninggal: 0,
+  keterangan: 'Lahir selamat dan sehat',
+};
