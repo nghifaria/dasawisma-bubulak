@@ -206,7 +206,7 @@ export interface RWMetricsAggregated {
   persen_up2k: number;
   pekarangan_pkk_count: number;
   kerja_bakti_count: number;
-  is_pilot: boolean; // TRUE khusus RW 12
+  is_pilot?: boolean;
 }
 
 /**

@@ -43,11 +43,6 @@ function CustomTooltip({ active, payload, label, mode }: CustomTooltipProps) {
     <div className="bg-slate-900 text-white p-3 rounded-xl shadow-md text-xs max-w-xs border border-slate-700">
       <div className="flex items-center justify-between gap-2 border-b border-slate-700 pb-1.5 mb-1.5">
         <strong className="text-sm font-bold text-emerald-400">{label}</strong>
-        {rwData.is_pilot && (
-          <span className="px-2 py-0.5 rounded-md bg-emerald-800 text-emerald-100 text-[10px] font-bold">
-            Area Pilot
-          </span>
-        )}
       </div>
 
       <div className="space-y-1">
@@ -116,11 +111,7 @@ export function RWComparisonChart({
     if (selectedRW !== 'ALL' && item.rw === selectedRW) {
       return '#059669'; // Emerald aktif
     }
-    // Highlight khusus area pilot RW 12
-    if (item.is_pilot) {
-      return '#10b981'; // Emerald cerah
-    }
-    // Warna standar netral
+    // Warna standar netral seragam untuk seluruh RW
     return metricMode === 'rumah_sehat' ? '#059669' : '#475569';
   };
 
@@ -166,7 +157,7 @@ export function RWComparisonChart({
               Komparasi Data Antar-RW
             </h2>
             <p className="text-xs text-slate-600 font-medium">
-              Perbandingan 13 RW Kelurahan Bubulak (RW 12 sebagai Wilayah Percontohan)
+              Perbandingan 13 RW Kelurahan Bubulak
             </p>
           </div>
         </div>
@@ -287,8 +278,6 @@ export function RWComparisonChart({
                 <Cell
                   key={entry.rw}
                   fill={getBarColor(entry)}
-                  stroke={entry.is_pilot ? '#047857' : undefined}
-                  strokeWidth={entry.is_pilot ? 2 : 0}
                 />
               ))}
             </Bar>
@@ -301,11 +290,11 @@ export function RWComparisonChart({
         <div className="flex items-center gap-4 flex-wrap">
           <span className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-xs bg-slate-600 inline-block" />
-            <span>RW Standar</span>
+            <span>Semua RW</span>
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-xs bg-emerald-500 border border-emerald-700 inline-block" />
-            <strong className="text-emerald-800">RW 12 (Pilot Project Riil)</strong>
+            <span className="w-3 h-3 rounded-xs bg-emerald-600 inline-block" />
+            <span className="text-slate-700 font-semibold">RW Terpilih / Nilai Metrik</span>
           </span>
         </div>
         <span className="text-[11px] text-slate-500 italic">

@@ -129,19 +129,12 @@ export function RekapWilayahTable({
                   className={`transition-colors cursor-pointer ${
                     isSelected
                       ? 'bg-emerald-50/75 hover:bg-emerald-100/60 font-semibold'
-                      : row.is_pilot
-                      ? 'bg-emerald-50/30 hover:bg-emerald-50/70'
                       : 'hover:bg-slate-50'
                   }`}
                 >
                   <td className="py-3 px-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-slate-900">{row.rw}</span>
-                      {row.is_pilot && (
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-bold border border-emerald-300">
-                          Pilot Area
-                        </span>
-                      )}
                       {isSelected && (
                         <span className="px-1.5 py-0.5 rounded-md bg-slate-900 text-white text-[10px] font-bold">
                           Aktif

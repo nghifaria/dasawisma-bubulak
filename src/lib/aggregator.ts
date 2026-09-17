@@ -1,8 +1,8 @@
 /**
  * Aggregation & Real Computation Engine - Dasawisma Bubulak
  * Menghitung akumulasi data riil dari Buku 1, Buku 2, dan Buku 3 Google Sheets.
- * Wilayah dengan data riil (RW 12) dihitung 100% murni dari tanggapan form,
- * wilayah lain dilengkapi baseline data acuan.
+ * 100% murni, objektif, dan dinamis dari baris tanggapan aktual.
+ * Semua RW yang belum memiliki respons pengisian dimulai dari angka 0.
  */
 
 import {
@@ -12,16 +12,25 @@ import {
   Buku3RawRow,
   RWMetricsAggregated,
   PyramidDataPoint,
-  DemographicSummary,
   SanitationMetrics,
-  DashboardPayload,
 } from '@/types/dasawisma';
-import {
-  BASELINE_RW_METRICS,
-  BASELINE_DEMOGRAPHICS,
-  BASELINE_SANITATION,
-} from '@/data/baselineBubulak';
 import { normalizeTwoDigit } from './sanitizer';
+
+export const DAFTAR_RW_KEYS = [
+  'RW 01',
+  'RW 02',
+  'RW 03',
+  'RW 04',
+  'RW 05',
+  'RW 06',
+  'RW 07',
+  'RW 08',
+  'RW 09',
+  'RW 10',
+  'RW 11',
+  'RW 12',
+  'RW 13',
+] as const;
 
 export const AGE_BINS = [
   '0-4',
@@ -99,7 +108,7 @@ export function computePyramid(citizens: CitizenEntity[]): PyramidDataPoint[] {
  * Menghitung Distribusi Pendidikan Warga
  */
 export function computeEducationDistribution(citizens: CitizenEntity[]) {
-  const total = citizens.length || 1;
+  const total = citizens.length;
   const counts: Record<string, number> = {
     'SMA / SMK': 0,
     'SMP / Sederajat': 0,
@@ -108,33 +117,35 @@ export function computeEducationDistribution(citizens: CitizenEntity[]) {
     'Belum / Tidak Sekolah': 0,
   };
 
-  for (const c of citizens) {
-    const p = (c.pendidikan || '').toLowerCase();
-    if (p.includes('sma') || p.includes('smk') || p.includes('slta')) {
-      counts['SMA / SMK']++;
-    } else if (p.includes('smp') || p.includes('sltp')) {
-      counts['SMP / Sederajat']++;
-    } else if (p.includes('sd')) {
-      counts['SD / Sederajat']++;
-    } else if (
-      p.includes('s1') ||
-      p.includes('s2') ||
-      p.includes('diploma') ||
-      p.includes('d3') ||
-      p.includes('sarjana')
-    ) {
-      counts['Diploma / S1 / S2']++;
-    } else if (p.includes('belum') || p.includes('tidak') || c.usia < 6) {
-      counts['Belum / Tidak Sekolah']++;
-    } else {
-      counts['SMA / SMK']++;
+  if (total > 0) {
+    for (const c of citizens) {
+      const p = (c.pendidikan || '').toLowerCase();
+      if (p.includes('sma') || p.includes('smk') || p.includes('slta')) {
+        counts['SMA / SMK']++;
+      } else if (p.includes('smp') || p.includes('sltp')) {
+        counts['SMP / Sederajat']++;
+      } else if (p.includes('sd')) {
+        counts['SD / Sederajat']++;
+      } else if (
+        p.includes('s1') ||
+        p.includes('s2') ||
+        p.includes('diploma') ||
+        p.includes('d3') ||
+        p.includes('sarjana')
+      ) {
+        counts['Diploma / S1 / S2']++;
+      } else if (p.includes('belum') || p.includes('tidak') || c.usia < 6) {
+        counts['Belum / Tidak Sekolah']++;
+      } else {
+        counts['SMA / SMK']++;
+      }
     }
   }
 
   return Object.entries(counts).map(([label, count]) => ({
     label,
     count,
-    percentage: Number(((count / total) * 100).toFixed(1)),
+    percentage: total > 0 ? Number(((count / total) * 100).toFixed(1)) : 0,
   }));
 }
 
@@ -142,7 +153,7 @@ export function computeEducationDistribution(citizens: CitizenEntity[]) {
  * Menghitung Distribusi Pekerjaan Warga
  */
 export function computeJobDistribution(citizens: CitizenEntity[]) {
-  const total = citizens.length || 1;
+  const total = citizens.length;
   const counts: Record<string, number> = {
     'Karyawan Swasta': 0,
     'Ibu Rumah Tangga (IRT)': 0,
@@ -153,43 +164,45 @@ export function computeJobDistribution(citizens: CitizenEntity[]) {
     'Lainnya / Pensiunan': 0,
   };
 
-  for (const c of citizens) {
-    const job = (c.pekerjaan || '').toLowerCase();
-    if (job.includes('swasta') || job.includes('karyawan')) {
-      counts['Karyawan Swasta']++;
-    } else if (job.includes('irt') || job.includes('rumah tangga')) {
-      counts['Ibu Rumah Tangga (IRT)']++;
-    } else if (
-      job.includes('wiraswasta') ||
-      job.includes('pedagang') ||
-      job.includes('usaha') ||
-      job.includes('dagang')
-    ) {
-      counts['Wiraswasta / Pedagang']++;
-    } else if (
-      job.includes('pelajar') ||
-      job.includes('mahasiswa') ||
-      job.includes('sekolah')
-    ) {
-      counts['Pelajar / Mahasiswa']++;
-    } else if (
-      job.includes('asn') ||
-      job.includes('pns') ||
-      job.includes('tni') ||
-      job.includes('polri')
-    ) {
-      counts['ASN / TNI / POLRI']++;
-    } else if (job.includes('belum') || job.includes('tidak') || c.usia < 6) {
-      counts['Belum / Tidak Bekerja']++;
-    } else {
-      counts['Lainnya / Pensiunan']++;
+  if (total > 0) {
+    for (const c of citizens) {
+      const job = (c.pekerjaan || '').toLowerCase();
+      if (job.includes('swasta') || job.includes('karyawan')) {
+        counts['Karyawan Swasta']++;
+      } else if (job.includes('irt') || job.includes('rumah tangga')) {
+        counts['Ibu Rumah Tangga (IRT)']++;
+      } else if (
+        job.includes('wiraswasta') ||
+        job.includes('pedagang') ||
+        job.includes('usaha') ||
+        job.includes('dagang')
+      ) {
+        counts['Wiraswasta / Pedagang']++;
+      } else if (
+        job.includes('pelajar') ||
+        job.includes('mahasiswa') ||
+        job.includes('sekolah')
+      ) {
+        counts['Pelajar / Mahasiswa']++;
+      } else if (
+        job.includes('asn') ||
+        job.includes('pns') ||
+        job.includes('tni') ||
+        job.includes('polri')
+      ) {
+        counts['ASN / TNI / POLRI']++;
+      } else if (job.includes('belum') || job.includes('tidak') || c.usia < 6) {
+        counts['Belum / Tidak Bekerja']++;
+      } else {
+        counts['Lainnya / Pensiunan']++;
+      }
     }
   }
 
   return Object.entries(counts).map(([label, count]) => ({
     label,
     count,
-    percentage: Number(((count / total) * 100).toFixed(1)),
+    percentage: total > 0 ? Number(((count / total) * 100).toFixed(1)) : 0,
   }));
 }
 
@@ -327,7 +340,7 @@ export function computeKia(
   const persenAkta =
     totalBayiLahir > 0
       ? Number(((bayiBerakta / totalBayiLahir) * 100).toFixed(1))
-      : 100;
+      : 0;
 
   return {
     total_bumil: totalBumil,
@@ -341,21 +354,21 @@ export function computeKia(
 }
 
 /**
- * Menghitung agregat 13 RW. Wilayah dengan live response dihitung murni,
- * sisanya menggunakan baseline.
+ * Menghitung agregat 13 RW murni dari data riil Google Sheets.
+ * RW yang belum ada tanggapan dimulai dari angka 0 tanpa baseline dummy.
  */
 export function aggregateRwList(
   buku1List: FamilyEntity[],
   buku2List: Buku2RawRow[],
   buku3List: Buku3RawRow[]
 ): RWMetricsAggregated[] {
-  return BASELINE_RW_METRICS.map((base) => {
-    const rwNum = base.rw.replace(/\D/g, ''); // "01" ... "13"
+  return DAFTAR_RW_KEYS.map((rwCode) => {
+    const rwNum = rwCode.replace(/\D/g, ''); // "01" ... "13"
     const rwFamilies = buku1List.filter((f) => normalizeTwoDigit(f.rw) === rwNum);
     const rwBuku2 = buku2List.filter((b) => normalizeTwoDigit(b.rw) === rwNum);
     const rwBuku3 = buku3List.filter((b) => normalizeTwoDigit(b.rw) === rwNum);
 
-    // Jika RW ini memiliki data tanggapan di Google Sheets
+    // Jika RW ini memiliki data tanggapan valid di Google Sheets
     if (rwFamilies.length > 0 || rwBuku2.length > 0 || rwBuku3.length > 0) {
       const totalKK =
         rwFamilies.length ||
@@ -430,7 +443,7 @@ export function aggregateRwList(
       rwBuku3.forEach((b) => b.nama_dasawisma && uniqueDasa.add(b.nama_dasawisma));
 
       return {
-        rw: base.rw,
+        rw: rwCode,
         total_rt: Math.max(1, uniqueRt.size),
         total_dasawisma: Math.max(1, uniqueDasa.size),
         total_kk: totalKK,
@@ -455,11 +468,37 @@ export function aggregateRwList(
           totalKK > 0 ? Number(((progs.up2k / totalKK) * 100).toFixed(1)) : 0,
         pekarangan_pkk_count: progs.pekarangan,
         kerja_bakti_count: progs.kerjaBakti,
-        is_pilot: base.rw === 'RW 12' || base.is_pilot,
+        is_pilot: false,
       };
     }
 
-    // Kelompok RW lain yang belum ada data: gunakan data acuan baseline
-    return base;
+    // Kelompok RW lain yang belum ada data: MULAI DARI ANGKA 0
+    return {
+      rw: rwCode,
+      total_rt: 0,
+      total_dasawisma: 0,
+      total_kk: 0,
+      total_jiwa: 0,
+      total_l: 0,
+      total_p: 0,
+      total_balita: 0,
+      total_lansia: 0,
+      total_pus: 0,
+      total_wus: 0,
+      total_bumil: 0,
+      total_menyusui: 0,
+      rumah_sehat_count: 0,
+      rumah_kurang_sehat_count: 0,
+      persen_rumah_sehat: 0,
+      mck_layak_count: 0,
+      persen_mck_layak: 0,
+      air_pdam_count: 0,
+      air_sumur_count: 0,
+      up2k_aktif_count: 0,
+      persen_up2k: 0,
+      pekarangan_pkk_count: 0,
+      kerja_bakti_count: 0,
+      is_pilot: false,
+    };
   });
 }

@@ -1,7 +1,7 @@
 /**
  * Live Fetch & Ingestion Pipeline Engine - Dasawisma Bubulak
  * Menangani pengambilan live CSV dari Google Sheets (Publish to Web),
- * parsing streaming PapaParse, fallback dataset mandiri, dan penyusunan DashboardPayload.
+ * parsing streaming PapaParse, agregasi murni data riil, dan penyusunan DashboardPayload.
  */
 
 import Papa from 'papaparse';
@@ -12,8 +12,6 @@ import {
   Buku3RawRow,
   DashboardPayload,
   RWMetricsAggregated,
-  PyramidDataPoint,
-  SanitationMetrics,
 } from '@/types/dasawisma';
 import {
   sanitizeBuku1Row,
@@ -22,21 +20,12 @@ import {
   normalizeTwoDigit,
 } from './sanitizer';
 import {
-  SAMPLE_BUKU1_FIXTURE,
-  SAMPLE_BUKU2_FIXTURE,
-  SAMPLE_BUKU3_FIXTURE,
-} from '@/data/sampleFixtures';
-import {
-  BASELINE_DEMOGRAPHICS,
-} from '@/data/baselineBubulak';
-import {
   aggregateRwList,
   computePyramid,
   computeEducationDistribution,
   computeJobDistribution,
   computeSanitation,
   computeKia,
-  computePrograms,
 } from './aggregator';
 
 const DEFAULT_BUKU1_URL =
@@ -99,11 +88,10 @@ export async function getBuku1Data(): Promise<FamilyEntity[]> {
   try {
     const csv = await fetchCsvWithTimeout(url);
     const rows = parseCsvToRows(csv);
-    if (rows.length === 0) return [SAMPLE_BUKU1_FIXTURE];
     return rows.map((r, i) => sanitizeBuku1Row(r, i));
   } catch (err) {
-    console.warn('[DataPipeline] Gagal mengambil Buku 1 live CSV, menggunakan sample fixture:', err);
-    return [SAMPLE_BUKU1_FIXTURE];
+    console.warn('[DataPipeline] Gagal mengambil Buku 1 live CSV:', err);
+    return [];
   }
 }
 
@@ -115,11 +103,10 @@ export async function getBuku2Data(): Promise<Buku2RawRow[]> {
   try {
     const csv = await fetchCsvWithTimeout(url);
     const rows = parseCsvToRows(csv);
-    if (rows.length === 0) return [SAMPLE_BUKU2_FIXTURE];
     return rows.map((r) => sanitizeBuku2Row(r));
   } catch (err) {
-    console.warn('[DataPipeline] Gagal mengambil Buku 2 live CSV, menggunakan sample fixture:', err);
-    return [SAMPLE_BUKU2_FIXTURE];
+    console.warn('[DataPipeline] Gagal mengambil Buku 2 live CSV:', err);
+    return [];
   }
 }
 
@@ -131,11 +118,10 @@ export async function getBuku3Data(): Promise<Buku3RawRow[]> {
   try {
     const csv = await fetchCsvWithTimeout(url);
     const rows = parseCsvToRows(csv);
-    if (rows.length === 0) return [SAMPLE_BUKU3_FIXTURE];
     return rows.map((r) => sanitizeBuku3Row(r));
   } catch (err) {
-    console.warn('[DataPipeline] Gagal mengambil Buku 3 live CSV, menggunakan sample fixture:', err);
-    return [SAMPLE_BUKU3_FIXTURE];
+    console.warn('[DataPipeline] Gagal mengambil Buku 3 live CSV:', err);
+    return [];
   }
 }
 
@@ -145,8 +131,18 @@ export async function getBuku3Data(): Promise<Buku3RawRow[]> {
 function getFormattedWibTime(): string {
   const now = new Date();
   const months = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+    'Januari',
+    'Februari',
+    'Maret',
+    'April',
+    'Mei',
+    'Juni',
+    'Juli',
+    'Agustus',
+    'September',
+    'Oktober',
+    'November',
+    'Desember',
   ];
   const d = now.getDate().toString().padStart(2, '0');
   const m = months[now.getMonth()];
@@ -158,7 +154,7 @@ function getFormattedWibTime(): string {
 
 /**
  * Eksekutor Utama Pipeline: Mengambil data 3 buku secara paralel,
- * menggabungkan data riil RW 12 dengan baseline 13 RW, dan mengembalikan DashboardPayload.
+ * mengagregasi 100% data riil dari baris tanggapan aktual.
  */
 export async function fetchDasawismaData(
   selectedRW = 'ALL',
@@ -171,19 +167,38 @@ export async function fetchDasawismaData(
     getBuku3Data(),
   ]);
 
-  // 2. Agregasi dinamis 13 RW (RW 12 murni dari tanggapan form, RW lain dari baseline)
+  // 2. Agregasi dinamis 13 RW murni data riil (RW tanpa data = 0)
   const rwMetricsList: RWMetricsAggregated[] = aggregateRwList(
     buku1List,
     buku2List,
     buku3List
   );
 
-  // 3. Hitung Agregat Makro KPI
+  // 3. Filter data berdasarkan RW / RT jika dipilih
+  let activeFamilies = buku1List;
+  let activeBuku2 = buku2List;
+  let activeBuku3 = buku3List;
+
+  if (selectedRW !== 'ALL') {
+    const rwNum = selectedRW.replace(/\D/g, '');
+    activeFamilies = activeFamilies.filter((f) => normalizeTwoDigit(f.rw) === rwNum);
+    activeBuku2 = activeBuku2.filter((b) => normalizeTwoDigit(b.rw) === rwNum);
+    activeBuku3 = activeBuku3.filter((b) => normalizeTwoDigit(b.rw) === rwNum);
+  }
+
+  if (selectedRT !== 'ALL') {
+    const rtNum = selectedRT.replace(/\D/g, '');
+    activeFamilies = activeFamilies.filter((f) => normalizeTwoDigit(f.rt) === rtNum);
+    activeBuku2 = activeBuku2.filter((b) => normalizeTwoDigit(b.rt) === rtNum);
+    activeBuku3 = activeBuku3.filter((b) => normalizeTwoDigit(b.rt) === rtNum);
+  }
+
   const activeRWs =
     selectedRW === 'ALL'
       ? rwMetricsList
       : rwMetricsList.filter((r) => r.rw === selectedRW);
 
+  // 4. Hitung Agregat Makro KPI Murni
   const totalDasawisma = activeRWs.reduce((sum, r) => sum + r.total_dasawisma, 0);
   const totalKK = activeRWs.reduce((sum, r) => sum + r.total_kk, 0);
   const totalJiwa = activeRWs.reduce((sum, r) => sum + r.total_jiwa, 0);
@@ -191,73 +206,17 @@ export async function fetchDasawismaData(
   const totalPerempuan = activeRWs.reduce((sum, r) => sum + r.total_p, 0);
   const totalRumahSehat = activeRWs.reduce((sum, r) => sum + r.rumah_sehat_count, 0);
   const persenRumahSehat =
-    totalKK > 0 ? Number(((totalRumahSehat / totalKK) * 100).toFixed(1)) : 91.4;
+    totalKK > 0 ? Number(((totalRumahSehat / totalKK) * 100).toFixed(1)) : 0;
 
-  // 4. Demografi & Piramida Usia
-  let piramida: PyramidDataPoint[] = BASELINE_DEMOGRAPHICS.piramida_usia;
-  let eduDist = BASELINE_DEMOGRAPHICS.distribusi_pendidikan;
-  let jobDist = BASELINE_DEMOGRAPHICS.distribusi_pekerjaan;
+  // 5. Demografi Murni dari CitizenEntity[]
+  const activeCitizens = activeFamilies.flatMap((f) => f.anggota_warga);
+  const piramida = computePyramid(activeCitizens);
+  const eduDist = computeEducationDistribution(activeCitizens);
+  const jobDist = computeJobDistribution(activeCitizens);
 
-  if (selectedRW !== 'ALL') {
-    const rwNum = selectedRW.replace(/\D/g, '');
-    const rwFamilies = buku1List.filter((f) => normalizeTwoDigit(f.rw) === rwNum);
-    if (rwFamilies.length > 0) {
-      const citizens = rwFamilies.flatMap((f) => f.anggota_warga);
-      piramida = computePyramid(citizens);
-      eduDist = computeEducationDistribution(citizens);
-      jobDist = computeJobDistribution(citizens);
-    } else {
-      const ratio = totalJiwa / (BASELINE_DEMOGRAPHICS.total_jiwa || 1);
-      piramida = BASELINE_DEMOGRAPHICS.piramida_usia.map((p) => ({
-        ...p,
-        laki_laki: Math.round(p.laki_laki * ratio),
-        perempuan: Math.round(p.perempuan * ratio),
-        total: Math.round(p.total * ratio),
-      }));
-    }
-  }
-
-  // 5. Agregat Sanitasi
-  const saniMenumpang = Math.round(totalKK * 0.08);
-  const totalMckLayak = activeRWs.reduce((sum, r) => sum + r.mck_layak_count, 0);
-  const totalAirPdam = activeRWs.reduce((sum, r) => sum + r.air_pdam_count, 0);
-  const totalAirSumur = activeRWs.reduce((sum, r) => sum + r.air_sumur_count, 0);
-
-  const sanitation: SanitationMetrics = {
-    total_rumah: totalKK,
-    rumah_sehat: totalRumahSehat,
-    rumah_kurang_sehat: Math.max(0, totalKK - totalRumahSehat),
-    persen_rumah_sehat: persenRumahSehat,
-    mck_septictank_sendiri: totalMckLayak,
-    mck_menumpang: saniMenumpang,
-    mck_tidak_ada: Math.max(0, totalKK - totalMckLayak - saniMenumpang),
-    persen_mck_layak: totalKK > 0 ? Number(((totalMckLayak / totalKK) * 100).toFixed(1)) : 89.7,
-    air_pdam: totalAirPdam,
-    air_sumur: totalAirSumur,
-    air_lainnya: Math.max(0, totalKK - totalAirPdam - totalAirSumur),
-    tempat_sampah_ada: Math.round(totalKK * 0.93),
-    spal_ada: Math.round(totalKK * 0.88),
-  };
-
-  // 6. Agregat KIA
-  let kiaMetrics = {
-    total_bumil: activeRWs.reduce((sum, r) => sum + r.total_bumil, 0),
-    bumil_resti: selectedRW === 'RW 12' ? 0 : 2,
-    total_bayi_lahir: 14 + buku3List.reduce((acc, b) => acc + (b.jml_melahirkan || 0), 0),
-    bayi_berakta: 14 + buku3List.filter((b) => b.akta_kelahiran.toLowerCase().includes('ada')).length,
-    persen_bayi_berakta: 95.5,
-    mortalitas_ibu: buku3List.reduce((acc, b) => acc + (b.jml_meninggal || 0), 0),
-    mortalitas_bayi: 0,
-  };
-
-  if (selectedRW !== 'ALL') {
-    const rwNum = selectedRW.replace(/\D/g, '');
-    const rwBuku3 = buku3List.filter((b) => normalizeTwoDigit(b.rw) === rwNum);
-    const rwFamilies = buku1List.filter((f) => normalizeTwoDigit(f.rw) === rwNum);
-    if (rwBuku3.length > 0 || rwFamilies.length > 0) {
-      kiaMetrics = computeKia(rwBuku3, rwFamilies);
-    }
-  }
+  // 6. Sanitasi & KIA Murni
+  const sanitation = computeSanitation(activeFamilies, activeBuku2);
+  const kiaMetrics = computeKia(activeBuku3, activeFamilies);
 
   return {
     last_updated: getFormattedWibTime(),
@@ -276,14 +235,14 @@ export async function fetchDasawismaData(
       total_laki: totalLaki,
       total_perempuan: totalPerempuan,
       rasio_gender_persen_laki:
-        totalJiwa > 0 ? Number(((totalLaki / totalJiwa) * 100).toFixed(1)) : 50,
+        totalJiwa > 0 ? Number(((totalLaki / totalJiwa) * 100).toFixed(1)) : 0,
       rasio_gender_persen_perempuan:
-        totalJiwa > 0 ? Number(((totalPerempuan / totalJiwa) * 100).toFixed(1)) : 50,
+        totalJiwa > 0 ? Number(((totalPerempuan / totalJiwa) * 100).toFixed(1)) : 0,
       total_balita: activeRWs.reduce((sum, r) => sum + r.total_balita, 0),
       total_lansia: activeRWs.reduce((sum, r) => sum + r.total_lansia, 0),
       total_pus: activeRWs.reduce((sum, r) => sum + r.total_pus, 0),
       total_wus: activeRWs.reduce((sum, r) => sum + r.total_wus, 0),
-      total_buta3: BASELINE_DEMOGRAPHICS.total_buta3,
+      total_buta3: activeFamilies.reduce((sum, f) => sum + f.buta3, 0),
       piramida_usia: piramida,
       distribusi_pendidikan: eduDist,
       distribusi_pekerjaan: jobDist,

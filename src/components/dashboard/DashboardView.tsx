@@ -106,87 +106,31 @@ export function DashboardView({ initialData }: DashboardViewProps) {
       };
     }
 
-    // Untuk RW yang belum ada data riil, gunakan angka baseline
-    if (!rwMatch) {
-      return {
-        filteredKPI: initialData.kpi_summary,
-        filteredPyramid: initialData.demographics.piramida_usia,
-        filteredEducation: initialData.demographics.distribusi_pendidikan,
-        filteredJobs: initialData.demographics.distribusi_pekerjaan,
-        filteredSanitation: initialData.sanitation,
-        filteredKia: initialData.kia_metrics,
-        filteredPrograms: {
-          up2k: 24,
-          pekarangan: 38,
-          kerjaBakti: 112,
-        },
-      };
-    }
-
-    const kpi = {
-      total_dasawisma: rwMatch.total_dasawisma,
-      total_kk: rwMatch.total_kk,
-      total_jiwa: rwMatch.total_jiwa,
-      total_laki: rwMatch.total_l,
-      total_perempuan: rwMatch.total_p,
-      persen_rumah_sehat: rwMatch.persen_rumah_sehat,
+    // Untuk RW yang belum ada data riil, seluruh indikator bernilai 0 murni
+    const zeroKPI = {
+      total_dasawisma: 0,
+      total_kk: 0,
+      total_jiwa: 0,
+      total_laki: 0,
+      total_perempuan: 0,
+      persen_rumah_sehat: 0,
     };
 
-    // Skalakan piramida penduduk secara proporsional sesuai rasio jiwa wilayah RW
-    const totalAllJiwa = initialData.kpi_summary.total_jiwa || 6450;
-    const ratio = rwMatch.total_jiwa / totalAllJiwa;
-
-    const scaledPyramid: PyramidDataPoint[] = initialData.demographics.piramida_usia.map((p) => ({
-      ...p,
-      laki_laki: Math.max(1, Math.round(p.laki_laki * ratio)),
-      perempuan: Math.max(1, Math.round(p.perempuan * ratio)),
-      total: Math.max(2, Math.round(p.total * ratio)),
-    }));
-
-    // Skalakan metrik sanitasi untuk wilayah RW spesifik
-    const saniMenumpang = Math.round(rwMatch.total_kk * 0.08);
-    const saniTidakAda = Math.max(0, rwMatch.total_kk - rwMatch.mck_layak_count - saniMenumpang);
-
-    const sani: SanitationMetrics = {
-      total_rumah: rwMatch.total_kk,
-      rumah_sehat: rwMatch.rumah_sehat_count,
-      rumah_kurang_sehat: rwMatch.rumah_kurang_sehat_count,
-      persen_rumah_sehat: rwMatch.persen_rumah_sehat,
-      mck_septictank_sendiri: rwMatch.mck_layak_count,
-      mck_menumpang: saniMenumpang,
-      mck_tidak_ada: saniTidakAda,
-      persen_mck_layak: rwMatch.persen_mck_layak,
-      air_pdam: rwMatch.air_pdam_count,
-      air_sumur: rwMatch.air_sumur_count,
-      air_lainnya: Math.max(0, rwMatch.total_kk - rwMatch.air_pdam_count - rwMatch.air_sumur_count),
-      tempat_sampah_ada: Math.round(rwMatch.total_kk * 0.93),
-      spal_ada: Math.round(rwMatch.total_kk * 0.88),
-    };
-
-    // Metrik KIA wilayah RW
-    const totalBayi = Math.max(1, Math.round(rwMatch.total_balita * 0.3));
-    const kia = {
-      total_bumil: Math.max(1, rwMatch.total_bumil),
-      bumil_resti: Math.round(rwMatch.total_bumil * 0.1),
-      total_bayi_lahir: totalBayi,
-      bayi_berakta: Math.max(1, Math.round(totalBayi * 0.95)),
-      persen_bayi_berakta: 95.5,
-      mortalitas_ibu: 0,
-      mortalitas_bayi: 0,
-    };
+    const zeroPyramid = computePyramid([]);
+    const zeroEducation = computeEducationDistribution([]);
+    const zeroJobs = computeJobDistribution([]);
+    const zeroSanitation = computeSanitation([]);
+    const zeroPrograms = { up2k: 0, pekarangan: 0, kerjaBakti: 0 };
+    const zeroKia = computeKia([]);
 
     return {
-      filteredKPI: kpi,
-      filteredPyramid: scaledPyramid,
-      filteredEducation: initialData.demographics.distribusi_pendidikan,
-      filteredJobs: initialData.demographics.distribusi_pekerjaan,
-      filteredSanitation: sani,
-      filteredKia: kia,
-      filteredPrograms: {
-        up2k: rwMatch.up2k_aktif_count,
-        pekarangan: rwMatch.pekarangan_pkk_count,
-        kerjaBakti: rwMatch.kerja_bakti_count,
-      },
+      filteredKPI: zeroKPI,
+      filteredPyramid: zeroPyramid,
+      filteredEducation: zeroEducation,
+      filteredJobs: zeroJobs,
+      filteredSanitation: zeroSanitation,
+      filteredKia: zeroKia,
+      filteredPrograms: zeroPrograms,
     };
   }, [selectedRW, initialData]);
 
@@ -278,7 +222,7 @@ export function DashboardView({ initialData }: DashboardViewProps) {
             © 2026 Tim Penggerak PKK Kelurahan Bubulak, Kecamatan Bogor Barat, Kota Bogor.
           </p>
           <p className="font-semibold text-slate-700">
-            Platform Sistem Informasi & Dashboard Dasawisma (Wilayah Pilot: RW 12)
+            Platform Sistem Informasi & Dashboard Dasawisma TP-PKK Kelurahan Bubulak
           </p>
         </div>
       </footer>

@@ -154,8 +154,8 @@ export const DAFTAR_RW_BUBULAK: RWInfo[] = [
   {
     id: '12',
     code: 'RW 12',
-    name: 'RW 12 Bubulak (Pilot)',
-    isPilot: true,
+    name: 'RW 12 Bubulak',
+    isPilot: false,
     rtList: [
       { id: '01', name: 'RT 01', dasawismaCount: 3 },
       { id: '02', name: 'RT 02', dasawismaCount: 4 },

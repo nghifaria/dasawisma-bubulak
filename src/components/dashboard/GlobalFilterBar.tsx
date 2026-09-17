@@ -59,7 +59,7 @@ export function GlobalFilterBar({
                 <option value="ALL">Semua Wilayah (13 RW)</option>
                 {DAFTAR_RW_BUBULAK.map((rw) => (
                   <option key={rw.code} value={rw.code}>
-                    {rw.code} {rw.isPilot ? '(Area Pilot)' : ''}
+                    {rw.code}
                   </option>
                 ))}
               </select>
