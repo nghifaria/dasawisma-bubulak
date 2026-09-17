@@ -6,6 +6,15 @@ import {
   PyramidDataPoint,
   SanitationMetrics,
 } from '@/types/dasawisma';
+import {
+  computePyramid,
+  computeEducationDistribution,
+  computeJobDistribution,
+  computeSanitation,
+  computeKia,
+  computePrograms,
+} from '@/lib/aggregator';
+import { normalizeTwoDigit } from '@/lib/sanitizer';
 import { HeaderExecutive } from './HeaderExecutive';
 import { StatCards } from './StatCards';
 import { GlobalFilterBar } from './GlobalFilterBar';
@@ -28,35 +37,88 @@ export function DashboardView({ initialData }: DashboardViewProps) {
   const {
     filteredKPI,
     filteredPyramid,
+    filteredEducation,
+    filteredJobs,
     filteredSanitation,
     filteredKia,
     filteredPrograms,
   } = useMemo(() => {
     if (selectedRW === 'ALL') {
+      const allUp2k = initialData.rw_list.reduce((sum, r) => sum + r.up2k_aktif_count, 0);
+      const allPekarangan = initialData.rw_list.reduce((sum, r) => sum + r.pekarangan_pkk_count, 0);
+      const allKerjaBakti = initialData.rw_list.reduce((sum, r) => sum + r.kerja_bakti_count, 0);
+
       return {
         filteredKPI: initialData.kpi_summary,
         filteredPyramid: initialData.demographics.piramida_usia,
+        filteredEducation: initialData.demographics.distribusi_pendidikan,
+        filteredJobs: initialData.demographics.distribusi_pekerjaan,
         filteredSanitation: initialData.sanitation,
         filteredKia: initialData.kia_metrics,
         filteredPrograms: {
-          up2k: 333,
-          pekarangan: 530,
-          kerjaBakti: 1485,
+          up2k: allUp2k,
+          pekarangan: allPekarangan,
+          kerjaBakti: allKerjaBakti,
         },
       };
     }
 
+    const rwNum = selectedRW.replace(/\D/g, '');
+    const rwFamilies = (initialData.raw_families || []).filter(
+      (f) => normalizeTwoDigit(f.rw) === rwNum
+    );
+    const rwBuku2 = (initialData.raw_buku2 || []).filter(
+      (b) => normalizeTwoDigit(b.rw) === rwNum
+    );
+    const rwBuku3 = (initialData.raw_buku3 || []).filter(
+      (b) => normalizeTwoDigit(b.rw) === rwNum
+    );
+
     const rwMatch = initialData.rw_list.find((r) => r.rw === selectedRW);
+
+    // Jika RW memiliki tanggapan riil di Google Sheets (seperti RW 12):
+    if (rwFamilies.length > 0 || rwBuku2.length > 0 || rwBuku3.length > 0) {
+      const citizens = rwFamilies.flatMap((f) => f.anggota_warga);
+      const kpi = {
+        total_dasawisma: rwMatch ? rwMatch.total_dasawisma : 1,
+        total_kk: rwFamilies.length || (rwBuku2.length > 0 ? rwBuku2.reduce((acc, b) => acc + b.jml_kk, 0) : 1),
+        total_jiwa: rwFamilies.reduce((acc, f) => acc + f.jml_anggota, 0) || citizens.length,
+        total_laki: rwFamilies.reduce((acc, f) => acc + f.jml_laki, 0) || citizens.filter((c) => c.jenis_kelamin === 'L').length,
+        total_perempuan: rwFamilies.reduce((acc, f) => acc + f.jml_perempuan, 0) || citizens.filter((c) => c.jenis_kelamin === 'P').length,
+        persen_rumah_sehat: rwMatch ? rwMatch.persen_rumah_sehat : 100,
+      };
+
+      const realPyramid = computePyramid(citizens);
+      const realEducation = computeEducationDistribution(citizens);
+      const realJobs = computeJobDistribution(citizens);
+      const realSanitation = computeSanitation(rwFamilies, rwBuku2);
+      const realPrograms = computePrograms(rwFamilies, rwBuku2);
+      const realKia = computeKia(rwBuku3, rwFamilies);
+
+      return {
+        filteredKPI: kpi,
+        filteredPyramid: realPyramid,
+        filteredEducation: realEducation,
+        filteredJobs: realJobs,
+        filteredSanitation: realSanitation,
+        filteredKia: realKia,
+        filteredPrograms: realPrograms,
+      };
+    }
+
+    // Untuk RW yang belum ada data riil, gunakan angka baseline
     if (!rwMatch) {
       return {
         filteredKPI: initialData.kpi_summary,
         filteredPyramid: initialData.demographics.piramida_usia,
+        filteredEducation: initialData.demographics.distribusi_pendidikan,
+        filteredJobs: initialData.demographics.distribusi_pekerjaan,
         filteredSanitation: initialData.sanitation,
         filteredKia: initialData.kia_metrics,
         filteredPrograms: {
-          up2k: 333,
-          pekarangan: 530,
-          kerjaBakti: 1485,
+          up2k: 24,
+          pekarangan: 38,
+          kerjaBakti: 112,
         },
       };
     }
@@ -105,7 +167,7 @@ export function DashboardView({ initialData }: DashboardViewProps) {
     const totalBayi = Math.max(1, Math.round(rwMatch.total_balita * 0.3));
     const kia = {
       total_bumil: Math.max(1, rwMatch.total_bumil),
-      bumil_resti: rwMatch.rw === 'RW 12' ? 0 : Math.round(rwMatch.total_bumil * 0.1),
+      bumil_resti: Math.round(rwMatch.total_bumil * 0.1),
       total_bayi_lahir: totalBayi,
       bayi_berakta: Math.max(1, Math.round(totalBayi * 0.95)),
       persen_bayi_berakta: 95.5,
@@ -116,6 +178,8 @@ export function DashboardView({ initialData }: DashboardViewProps) {
     return {
       filteredKPI: kpi,
       filteredPyramid: scaledPyramid,
+      filteredEducation: initialData.demographics.distribusi_pendidikan,
+      filteredJobs: initialData.demographics.distribusi_pekerjaan,
       filteredSanitation: sani,
       filteredKia: kia,
       filteredPrograms: {
@@ -173,8 +237,8 @@ export function DashboardView({ initialData }: DashboardViewProps) {
 
         {/* Seksi 5B: Distribusi Pendidikan & Pekerjaan Utama */}
         <EducationJobChart
-          educationData={initialData.demographics.distribusi_pendidikan}
-          jobData={initialData.demographics.distribusi_pekerjaan}
+          educationData={filteredEducation}
+          jobData={filteredJobs}
         />
 
         {/* Seksi 6: Indikator Sanitasi Fisik & Partisipasi Program PKK */}

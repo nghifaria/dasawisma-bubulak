@@ -236,6 +236,9 @@ export interface DashboardPayload {
     mortalitas_bayi: number;
   };
   rw_list: RWMetricsAggregated[];
+  raw_families?: FamilyEntity[];
+  raw_buku2?: Buku2RawRow[];
+  raw_buku3?: Buku3RawRow[];
 }
 
 // ==========================================

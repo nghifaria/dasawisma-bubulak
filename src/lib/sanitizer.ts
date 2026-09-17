@@ -39,6 +39,11 @@ export function safeInt(val: unknown, fallback = 0): number {
 export function normalizeTwoDigit(val: unknown): string {
   const cleaned = cleanString(val).replace(/\D/g, '');
   if (!cleaned) return '01';
+  if (cleaned.length > 2) {
+    const num = parseInt(cleaned, 10);
+    if (!isNaN(num) && num < 100) return String(num).padStart(2, '0');
+    return '01';
+  }
   return cleaned.padStart(2, '0');
 }
 
@@ -50,7 +55,14 @@ export function findRowValue(row: RawSheetBuku1Row, keywords: string[]): string 
   const entries = Object.entries(row);
   for (const [key, value] of entries) {
     const lowerKey = key.toLowerCase().replace(/\s+/g, ' ');
-    const isMatch = keywords.every((kw) => lowerKey.includes(kw.toLowerCase()));
+    const isMatch = keywords.every((kw) => {
+      const lowerKw = kw.toLowerCase();
+      if (lowerKw === 'rt' || lowerKw === 'rw') {
+        const regex = new RegExp(`\\b${lowerKw}\\b`, 'i');
+        return regex.test(lowerKey);
+      }
+      return lowerKey.includes(lowerKw);
+    });
     if (isMatch && value !== undefined && value !== null) {
       return cleanString(value);
     }
@@ -104,17 +116,23 @@ export function extractAnggotaWarga(row: RawSheetBuku1Row, noKk: string): Citize
 
     const pendKeywords = i === 1 ? ['pendidikan terakhir'] : [`pendidikan terakhir_${i - 1}`];
     let pendidikan = findRowValue(row, pendKeywords);
-    if (!pendidikan) {
-      pendidikan = findRowValue(row, ['pendidikan terakhir']);
-    }
 
     const pekerKeywords = i === 1 ? ['pekerjaan'] : [`pekerjaan_${i - 1}`];
     let pekerjaan = findRowValue(row, pekerKeywords);
-    if (!pekerjaan) {
-      pekerjaan = findRowValue(row, ['pekerjaan']);
-    }
 
     const usia = calculateAgeFromBirthDate(tglLahir);
+
+    let resolvedPendidikan = pendidikan;
+    if (!resolvedPendidikan) {
+      resolvedPendidikan = usia < 6 ? 'Belum / Tidak Sekolah' : 'SMA/SMK';
+    } else if (usia < 6 && resolvedPendidikan === 'SMA/SMK') {
+      resolvedPendidikan = 'Belum / Tidak Sekolah';
+    }
+
+    let resolvedPekerjaan = pekerjaan;
+    if (!resolvedPekerjaan) {
+      resolvedPekerjaan = usia < 6 ? 'Belum / Tidak Bekerja' : 'Lainnya';
+    }
 
     anggotaList.push({
       no_kk: noKk,
@@ -125,8 +143,8 @@ export function extractAnggotaWarga(row: RawSheetBuku1Row, noKk: string): Citize
       jenis_kelamin: jenisKelamin,
       tanggal_lahir: tglLahir,
       usia,
-      pendidikan: pendidikan || 'SMA/SMK',
-      pekerjaan: pekerjaan || 'Lainnya',
+      pendidikan: resolvedPendidikan,
+      pekerjaan: resolvedPekerjaan,
     });
   }
 
@@ -186,8 +204,8 @@ export function sanitizeBuku1Row(row: RawSheetBuku1Row, index: number): FamilyEn
  */
 export function sanitizeBuku2Row(row: RawSheetBuku1Row): Buku2RawRow {
   const kegiatan = findRowValue(row, ['mengikuti kegiatan']);
-  const rtRaw = findRowValue(row, ['rt']);
-  const rwRaw = findRowValue(row, ['rw']);
+  const rtRaw = findRowValue(row, ['rt (rukun tetangga)']) || findRowValue(row, ['rt']);
+  const rwRaw = findRowValue(row, ['rw (rukun warga)']) || findRowValue(row, ['rw']);
 
   return {
     timestamp: cleanString(row['Timestamp']) || new Date().toISOString(),
@@ -227,8 +245,8 @@ export function sanitizeBuku2Row(row: RawSheetBuku1Row): Buku2RawRow {
  * Parser dan Sanitizer Baris Mentah CSV Buku 3
  */
 export function sanitizeBuku3Row(row: RawSheetBuku1Row): Buku3RawRow {
-  const rtRaw = findRowValue(row, ['rt']);
-  const rwRaw = findRowValue(row, ['rw']);
+  const rtRaw = findRowValue(row, ['rt (rukun tetangga)']) || findRowValue(row, ['rt']);
+  const rwRaw = findRowValue(row, ['rw (rukun warga)']) || findRowValue(row, ['rw']);
 
   return {
     timestamp: cleanString(row['Timestamp']) || new Date().toISOString(),

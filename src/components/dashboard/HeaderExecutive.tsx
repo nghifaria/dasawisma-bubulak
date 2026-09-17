@@ -19,8 +19,11 @@ export function HeaderExecutive({ lastUpdated, onSync }: HeaderExecutiveProps) {
       if (onSync) {
         await onSync();
       } else {
+        await fetch('/api/sync', { method: 'POST' });
         router.refresh();
       }
+    } catch (err) {
+      console.error('Gagal sinkronisasi data:', err);
     } finally {
       setTimeout(() => setIsSyncing(false), 700);
     }

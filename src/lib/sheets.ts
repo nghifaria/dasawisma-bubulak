@@ -13,11 +13,13 @@ import {
   DashboardPayload,
   RWMetricsAggregated,
   PyramidDataPoint,
+  SanitationMetrics,
 } from '@/types/dasawisma';
 import {
   sanitizeBuku1Row,
   sanitizeBuku2Row,
   sanitizeBuku3Row,
+  normalizeTwoDigit,
 } from './sanitizer';
 import {
   SAMPLE_BUKU1_FIXTURE,
@@ -25,10 +27,17 @@ import {
   SAMPLE_BUKU3_FIXTURE,
 } from '@/data/sampleFixtures';
 import {
-  BASELINE_RW_METRICS,
   BASELINE_DEMOGRAPHICS,
-  BASELINE_SANITATION,
 } from '@/data/baselineBubulak';
+import {
+  aggregateRwList,
+  computePyramid,
+  computeEducationDistribution,
+  computeJobDistribution,
+  computeSanitation,
+  computeKia,
+  computePrograms,
+} from './aggregator';
 
 const DEFAULT_BUKU1_URL =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcRyarK4PiA4MCAn6l8NNjeLpZN1X8w6E34rO4f2GdLIO5IKfDjxGfJso5hh6Qs6N5ufYc4pCnMx71/pub?output=csv';
@@ -49,6 +58,7 @@ async function fetchCsvWithTimeout(url: string, timeoutMs = 5000): Promise<strin
   try {
     const response = await fetch(url, {
       signal: controller.signal,
+      redirect: 'follow',
       headers: {
         Accept: 'text/csv; charset=utf-8',
       },
@@ -161,46 +171,14 @@ export async function fetchDasawismaData(
     getBuku3Data(),
   ]);
 
-  // 2. Filter entri jika ada pemilihan RW / RT spesifik
-  let filteredBuku1 = buku1List;
-  if (selectedRW !== 'ALL') {
-    const rwNum = selectedRW.replace(/\D/g, '');
-    filteredBuku1 = filteredBuku1.filter((b) => b.rw === rwNum || b.rw === selectedRW);
-  }
-  if (selectedRT !== 'ALL') {
-    const rtNum = selectedRT.replace(/\D/g, '');
-    filteredBuku1 = filteredBuku1.filter((b) => b.rt === rtNum || b.rt === selectedRT);
-  }
+  // 2. Agregasi dinamis 13 RW (RW 12 murni dari tanggapan form, RW lain dari baseline)
+  const rwMetricsList: RWMetricsAggregated[] = aggregateRwList(
+    buku1List,
+    buku2List,
+    buku3List
+  );
 
-  // 3. Susun daftar metrik per RW (memperbarui RW 12 dengan live data jika ada)
-  const rwMetricsList: RWMetricsAggregated[] = BASELINE_RW_METRICS.map((rw) => {
-    if (rw.rw === 'RW 12') {
-      const realRw12Entries = buku1List.filter((b) => b.rw === '12' || b.rw === 'RW 12');
-      if (realRw12Entries.length > 0) {
-        // Gabungkan / update kalkulasi data riil RW 12
-        const realKK = realRw12Entries.length;
-        const realJiwa = realRw12Entries.reduce((acc, curr) => acc + curr.jml_anggota, 0);
-        const realL = realRw12Entries.reduce((acc, curr) => acc + curr.jml_laki, 0);
-        const realP = realRw12Entries.reduce((acc, curr) => acc + curr.jml_perempuan, 0);
-        const realBalita = realRw12Entries.reduce((acc, curr) => acc + curr.balita, 0);
-        const realLansia = realRw12Entries.reduce((acc, curr) => acc + curr.lansia, 0);
-
-        return {
-          ...rw,
-          total_kk: rw.total_kk + (realKK > 1 ? realKK : 0),
-          total_jiwa: rw.total_jiwa + (realJiwa > 3 ? realJiwa : 0),
-          total_l: rw.total_l + (realL > 2 ? realL : 0),
-          total_p: rw.total_p + (realP > 1 ? realP : 0),
-          total_balita: rw.total_balita + (realBalita > 1 ? realBalita : 0),
-          total_lansia: rw.total_lansia + (realLansia > 0 ? realLansia : 0),
-          is_pilot: true,
-        };
-      }
-    }
-    return rw;
-  });
-
-  // 4. Hitung Agregat Makro KPI
+  // 3. Hitung Agregat Makro KPI
   const activeRWs =
     selectedRW === 'ALL'
       ? rwMetricsList
@@ -215,57 +193,106 @@ export async function fetchDasawismaData(
   const persenRumahSehat =
     totalKK > 0 ? Number(((totalRumahSehat / totalKK) * 100).toFixed(1)) : 91.4;
 
-  // 5. Agregat Demografi & Piramida Usia
+  // 4. Demografi & Piramida Usia
   let piramida: PyramidDataPoint[] = BASELINE_DEMOGRAPHICS.piramida_usia;
+  let eduDist = BASELINE_DEMOGRAPHICS.distribusi_pendidikan;
+  let jobDist = BASELINE_DEMOGRAPHICS.distribusi_pekerjaan;
+
   if (selectedRW !== 'ALL') {
-    // Skalakan piramida penduduk secara proporsional sesuai rasio jiwa RW terpilih
-    const ratio = totalJiwa / BASELINE_DEMOGRAPHICS.total_jiwa;
-    piramida = BASELINE_DEMOGRAPHICS.piramida_usia.map((p) => ({
-      ...p,
-      laki_laki: Math.round(p.laki_laki * ratio),
-      perempuan: Math.round(p.perempuan * ratio),
-      total: Math.round(p.total * ratio),
-    }));
+    const rwNum = selectedRW.replace(/\D/g, '');
+    const rwFamilies = buku1List.filter((f) => normalizeTwoDigit(f.rw) === rwNum);
+    if (rwFamilies.length > 0) {
+      const citizens = rwFamilies.flatMap((f) => f.anggota_warga);
+      piramida = computePyramid(citizens);
+      eduDist = computeEducationDistribution(citizens);
+      jobDist = computeJobDistribution(citizens);
+    } else {
+      const ratio = totalJiwa / (BASELINE_DEMOGRAPHICS.total_jiwa || 1);
+      piramida = BASELINE_DEMOGRAPHICS.piramida_usia.map((p) => ({
+        ...p,
+        laki_laki: Math.round(p.laki_laki * ratio),
+        perempuan: Math.round(p.perempuan * ratio),
+        total: Math.round(p.total * ratio),
+      }));
+    }
   }
 
-  // 6. Agregat Indikator KIA (Buku 3)
-  const totalBumilBuku3 = buku3List.reduce((acc, b) => acc + (b.jml_bumil || 0), 0);
-  const totalLahirBuku3 = buku3List.reduce((acc, b) => acc + (b.jml_melahirkan || 0), 0);
-  const totalAktaAda = buku3List.filter((b) => b.akta_kelahiran.toLowerCase().includes('ada')).length;
+  // 5. Agregat Sanitasi
+  const saniMenumpang = Math.round(totalKK * 0.08);
+  const totalMckLayak = activeRWs.reduce((sum, r) => sum + r.mck_layak_count, 0);
+  const totalAirPdam = activeRWs.reduce((sum, r) => sum + r.air_pdam_count, 0);
+  const totalAirSumur = activeRWs.reduce((sum, r) => sum + r.air_sumur_count, 0);
+
+  const sanitation: SanitationMetrics = {
+    total_rumah: totalKK,
+    rumah_sehat: totalRumahSehat,
+    rumah_kurang_sehat: Math.max(0, totalKK - totalRumahSehat),
+    persen_rumah_sehat: persenRumahSehat,
+    mck_septictank_sendiri: totalMckLayak,
+    mck_menumpang: saniMenumpang,
+    mck_tidak_ada: Math.max(0, totalKK - totalMckLayak - saniMenumpang),
+    persen_mck_layak: totalKK > 0 ? Number(((totalMckLayak / totalKK) * 100).toFixed(1)) : 89.7,
+    air_pdam: totalAirPdam,
+    air_sumur: totalAirSumur,
+    air_lainnya: Math.max(0, totalKK - totalAirPdam - totalAirSumur),
+    tempat_sampah_ada: Math.round(totalKK * 0.93),
+    spal_ada: Math.round(totalKK * 0.88),
+  };
+
+  // 6. Agregat KIA
+  let kiaMetrics = {
+    total_bumil: activeRWs.reduce((sum, r) => sum + r.total_bumil, 0),
+    bumil_resti: selectedRW === 'RW 12' ? 0 : 2,
+    total_bayi_lahir: 14 + buku3List.reduce((acc, b) => acc + (b.jml_melahirkan || 0), 0),
+    bayi_berakta: 14 + buku3List.filter((b) => b.akta_kelahiran.toLowerCase().includes('ada')).length,
+    persen_bayi_berakta: 95.5,
+    mortalitas_ibu: buku3List.reduce((acc, b) => acc + (b.jml_meninggal || 0), 0),
+    mortalitas_bayi: 0,
+  };
+
+  if (selectedRW !== 'ALL') {
+    const rwNum = selectedRW.replace(/\D/g, '');
+    const rwBuku3 = buku3List.filter((b) => normalizeTwoDigit(b.rw) === rwNum);
+    const rwFamilies = buku1List.filter((f) => normalizeTwoDigit(f.rw) === rwNum);
+    if (rwBuku3.length > 0 || rwFamilies.length > 0) {
+      kiaMetrics = computeKia(rwBuku3, rwFamilies);
+    }
+  }
 
   return {
     last_updated: getFormattedWibTime(),
     selected_rw: selectedRW,
     selected_rt: selectedRT,
     kpi_summary: {
-      total_dasawisma: totalDasawisma || 48,
-      total_kk: totalKK || 1842,
-      total_jiwa: totalJiwa || 6450,
-      total_laki: totalLaki || 3172,
-      total_perempuan: totalPerempuan || 3278,
+      total_dasawisma: totalDasawisma,
+      total_kk: totalKK,
+      total_jiwa: totalJiwa,
+      total_laki: totalLaki,
+      total_perempuan: totalPerempuan,
       persen_rumah_sehat: persenRumahSehat,
     },
     demographics: {
-      ...BASELINE_DEMOGRAPHICS,
-      total_jiwa: totalJiwa || BASELINE_DEMOGRAPHICS.total_jiwa,
-      total_laki: totalLaki || BASELINE_DEMOGRAPHICS.total_laki,
-      total_perempuan: totalPerempuan || BASELINE_DEMOGRAPHICS.total_perempuan,
+      total_jiwa: totalJiwa,
+      total_laki: totalLaki,
+      total_perempuan: totalPerempuan,
+      rasio_gender_persen_laki:
+        totalJiwa > 0 ? Number(((totalLaki / totalJiwa) * 100).toFixed(1)) : 50,
+      rasio_gender_persen_perempuan:
+        totalJiwa > 0 ? Number(((totalPerempuan / totalJiwa) * 100).toFixed(1)) : 50,
+      total_balita: activeRWs.reduce((sum, r) => sum + r.total_balita, 0),
+      total_lansia: activeRWs.reduce((sum, r) => sum + r.total_lansia, 0),
+      total_pus: activeRWs.reduce((sum, r) => sum + r.total_pus, 0),
+      total_wus: activeRWs.reduce((sum, r) => sum + r.total_wus, 0),
+      total_buta3: BASELINE_DEMOGRAPHICS.total_buta3,
       piramida_usia: piramida,
+      distribusi_pendidikan: eduDist,
+      distribusi_pekerjaan: jobDist,
     },
-    sanitation: {
-      ...BASELINE_SANITATION,
-      total_rumah: totalKK || BASELINE_SANITATION.total_rumah,
-      persen_rumah_sehat: persenRumahSehat,
-    },
-    kia_metrics: {
-      total_bumil: 42 + totalBumilBuku3,
-      bumil_resti: 2,
-      total_bayi_lahir: 14 + totalLahirBuku3,
-      bayi_berakta: 14 + totalAktaAda,
-      persen_bayi_berakta: 95.5,
-      mortalitas_ibu: 0,
-      mortalitas_bayi: 0,
-    },
+    sanitation,
+    kia_metrics: kiaMetrics,
     rw_list: rwMetricsList,
+    raw_families: buku1List,
+    raw_buku2: buku2List,
+    raw_buku3: buku3List,
   };
 }
