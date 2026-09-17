@@ -76,19 +76,19 @@ function CustomPyramidTooltip({
 
 export function DemographicsChart({ data, totalJiwa }: DemographicsChartProps) {
   // Untuk Recharts Piramida Simetris:
-  // Laki-laki dikonversi ke nilai negatif agar tampil di sebelah kiri sumbu nol
+  // Laki-laki dikonversi ke nilai negatif agar menjulur ke kiri dari 0
   const formattedData = data.map((item) => ({
     ...item,
     laki_laki_neg: -Math.abs(item.laki_laki),
     perempuan_pos: Math.abs(item.perempuan),
   }));
 
-  // Hitung batas nilai maksimal untuk skala simetris sumbu X
-  const maxVal = Math.max(
+  // Hitung batas nilai maksimal untuk skala simetris sumbu X secara dinamis
+  const maxCount = Math.max(
     ...data.map((d) => Math.max(d.laki_laki, d.perempuan)),
-    100
+    5 // Batas minimal 5 jika data sedikit agar sumbu X bilangan bulat rapi
   );
-  const domainLimit = Math.ceil((maxVal * 1.15) / 50) * 50;
+  const xDomainLimit = Math.ceil(maxCount * 1.15);
 
   return (
     <section
@@ -137,20 +137,21 @@ export function DemographicsChart({ data, totalJiwa }: DemographicsChartProps) {
         </table>
       </div>
 
-      {/* Chart Piramida */}
-      <div className="mt-4 w-full h-[460px]">
+      {/* Chart Piramida Lapang & Sejajar Sempurna */}
+      <div className="mt-4 w-full h-[520px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={formattedData}
             layout="vertical"
             stackOffset="sign"
-            margin={{ top: 10, right: 15, left: 0, bottom: 20 }}
+            margin={{ top: 10, right: 20, left: 10, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
             <XAxis
               type="number"
-              domain={[-domainLimit, domainLimit]}
-              tickFormatter={(val: number) => Math.abs(val).toLocaleString('id-ID')}
+              domain={[-xDomainLimit, xDomainLimit]}
+              tickFormatter={(val: number) => Math.abs(val).toString()}
+              allowDecimals={false}
               tickLine={false}
               axisLine={{ stroke: '#e2e8f0' }}
               tick={{ fill: '#64748b', fontSize: 11 }}
@@ -160,14 +161,14 @@ export function DemographicsChart({ data, totalJiwa }: DemographicsChartProps) {
               dataKey="age_group"
               tickLine={false}
               axisLine={{ stroke: '#e2e8f0' }}
-              tick={{ fill: '#0f172a', fontSize: 11, fontWeight: 600 }}
-              width={50}
+              tick={{ fill: '#334155', fontSize: 11, fontWeight: 500 }}
+              width={65}
             />
             <Tooltip
               content={<CustomPyramidTooltip totalJiwa={totalJiwa} />}
               cursor={{ fill: '#f8fafc' }}
             />
-            <ReferenceLine x={0} stroke="#94a3b8" strokeWidth={1.5} />
+            <ReferenceLine x={0} stroke="#94a3b8" strokeWidth={2} />
             <Legend
               verticalAlign="top"
               height={36}
@@ -182,15 +183,17 @@ export function DemographicsChart({ data, totalJiwa }: DemographicsChartProps) {
               dataKey="laki_laki_neg"
               name="Laki-laki"
               fill="#2563eb"
+              stackId="pyramid"
               radius={[4, 0, 0, 4]}
-              maxBarSize={18}
+              barSize={18}
             />
             <Bar
               dataKey="perempuan_pos"
               name="Perempuan"
               fill="#e11d48"
+              stackId="pyramid"
               radius={[0, 4, 4, 0]}
-              maxBarSize={18}
+              barSize={18}
             />
           </BarChart>
         </ResponsiveContainer>
