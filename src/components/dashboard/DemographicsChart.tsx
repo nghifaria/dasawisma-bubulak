@@ -139,14 +139,15 @@ export function DemographicsChart({ data, totalJiwa }: DemographicsChartProps) {
         </table>
       </div>
 
-      {/* Chart Piramida Lapang & Sejajar Sempurna */}
-      <div className="mt-4 w-full h-[520px]">
+      {/* Chart Piramida Padat & Proporsional */}
+      <div className="mt-4 w-full h-[440px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={formattedData}
             layout="vertical"
             stackOffset="sign"
-            margin={{ top: 10, right: 20, left: 10, bottom: 20 }}
+            barCategoryGap={2}
+            margin={{ top: 8, right: 12, left: 0, bottom: 8 }}
           >
             <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
             <XAxis
@@ -173,7 +174,7 @@ export function DemographicsChart({ data, totalJiwa }: DemographicsChartProps) {
             <ReferenceLine x={0} stroke="#94a3b8" strokeWidth={2} />
             <Legend
               verticalAlign="top"
-              height={36}
+              height={32}
               formatter={(value) => {
                 if (value === 'Laki-laki') {
                   return <span className="text-xs font-bold text-blue-700 mr-4">Laki-laki (Kiri)</span>;
@@ -187,7 +188,7 @@ export function DemographicsChart({ data, totalJiwa }: DemographicsChartProps) {
               fill="#2563eb"
               stackId="pyramid"
               radius={[4, 0, 0, 4]}
-              barSize={18}
+              maxBarSize={22}
             />
             <Bar
               dataKey="perempuan_pos"
@@ -195,7 +196,7 @@ export function DemographicsChart({ data, totalJiwa }: DemographicsChartProps) {
               fill="#e11d48"
               stackId="pyramid"
               radius={[0, 4, 4, 0]}
-              barSize={18}
+              maxBarSize={22}
             />
           </BarChart>
         </ResponsiveContainer>

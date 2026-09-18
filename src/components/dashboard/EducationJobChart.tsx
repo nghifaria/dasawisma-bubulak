@@ -135,18 +135,16 @@ function ChartToggle({ view, onToggle, ariaLabel }: ChartToggleProps) {
 function DonutView({
   data,
   colors,
-  total,
   title,
 }: {
   data: DistributionItem[];
   colors: string[];
-  total: number;
   title: string;
 }) {
   return (
     <div className="w-full min-h-[260px] flex flex-col sm:flex-row items-center justify-center gap-5">
-      {/* Donut Circle with Center Metric */}
-      <div className="relative w-[190px] h-[190px] shrink-0 mx-auto sm:mx-0 flex items-center justify-center">
+      {/* Clean Minimalist Donut Ring */}
+      <div className="relative w-[180px] h-[180px] shrink-0 mx-auto sm:mx-0 flex items-center justify-center">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Tooltip content={<CustomChartTooltip />} />
@@ -156,8 +154,8 @@ function DonutView({
               nameKey="label"
               cx="50%"
               cy="50%"
-              innerRadius={60}
-              outerRadius={90}
+              innerRadius={55}
+              outerRadius={85}
               paddingAngle={3}
               stroke="#ffffff"
               strokeWidth={2}
@@ -171,18 +169,6 @@ function DonutView({
             </Pie>
           </PieChart>
         </ResponsiveContainer>
-        {/* Center Metric Label */}
-        <div
-          className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center select-none"
-          aria-hidden="true"
-        >
-          <span className="text-2xl font-bold text-slate-900 leading-tight">
-            {total.toLocaleString('id-ID')}
-          </span>
-          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-            Total Jiwa
-          </span>
-        </div>
       </div>
 
       {/* Category Legend List */}
@@ -231,16 +217,6 @@ export function EducationJobChart({
 }: EducationJobChartProps) {
   const [eduView, setEduView] = useState<'bar' | 'donut'>('bar');
   const [jobView, setJobView] = useState<'bar' | 'donut'>('bar');
-
-  const totalEducation = useMemo(
-    () => educationData.reduce((acc, item) => acc + item.count, 0),
-    [educationData]
-  );
-
-  const totalJob = useMemo(
-    () => jobData.reduce((acc, item) => acc + item.count, 0),
-    [jobData]
-  );
 
   return (
     <section
@@ -307,7 +283,6 @@ export function EducationJobChart({
           <DonutView
             data={educationData}
             colors={EDU_COLORS}
-            total={totalEducation}
             title="Pendidikan Terakhir"
           />
         )}
@@ -394,7 +369,6 @@ export function EducationJobChart({
           <DonutView
             data={jobData}
             colors={JOB_COLORS}
-            total={totalJob}
             title="Pekerjaan Utama"
           />
         )}
