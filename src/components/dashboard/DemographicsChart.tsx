@@ -76,8 +76,10 @@ function CustomPyramidTooltip({
 
 export function DemographicsChart({ data, totalJiwa }: DemographicsChartProps) {
   // Untuk Recharts Piramida Simetris:
-  // Laki-laki dikonversi ke nilai negatif agar menjulur ke kiri dari 0
-  const formattedData = data.map((item) => ({
+  // 1. Data dibalik (.reverse()) agar kelompok usia termuda (0-4) berada di alas (bawah)
+  //    dan kelompok usia tertua (65+) berada di puncak piramida (atas) sesuai standar BPS/WHO.
+  // 2. Laki-laki dikonversi ke nilai negatif agar menjulur ke kiri dari 0
+  const formattedData = [...data].reverse().map((item) => ({
     ...item,
     laki_laki_neg: -Math.abs(item.laki_laki),
     perempuan_pos: Math.abs(item.perempuan),
