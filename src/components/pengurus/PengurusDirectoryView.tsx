@@ -32,6 +32,14 @@ export function PengurusDirectoryView() {
     'RW 03': true,
     'RW 04': true,
     'RW 05': true,
+    'RW 06': true,
+    'RW 07': true,
+    'RW 08': true,
+    'RW 09': true,
+    'RW 10': false,
+    'RW 11': true,
+    'RW 12': true,
+    'RW 13': true,
   });
 
   const stats = useMemo(() => getSKDirectoryStats(), []);
@@ -142,7 +150,7 @@ export function PengurusDirectoryView() {
               </div>
               <p className="text-xs text-emerald-700 mt-1 font-semibold flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                RW 01 s/d RW 05 terverifikasi penuh
+                12 RW terverifikasi penuh (kecuali RW 10)
               </p>
             </div>
           </div>
@@ -272,7 +280,14 @@ export function PengurusDirectoryView() {
             { id: 'RW 03', label: 'RW 03 (Flamboyan)' },
             { id: 'RW 04', label: 'RW 04 (Kenanga)' },
             { id: 'RW 05', label: 'RW 05 (Mawar)' },
-            { id: 'QUEUE', label: 'RW 06-13 (Antrean SK)' },
+            { id: 'RW 06', label: 'RW 06 (Cempaka)' },
+            { id: 'RW 07', label: 'RW 07 (Nusa Indah)' },
+            { id: 'RW 08', label: 'RW 08 (Anggrek Bulan)' },
+            { id: 'RW 09', label: 'RW 09 (Dahlia)' },
+            { id: 'RW 10', label: 'RW 10 (Antrean SK)' },
+            { id: 'RW 11', label: 'RW 11 (Bougenvile)' },
+            { id: 'RW 12', label: 'RW 12 (Kenanga)' },
+            { id: 'RW 13', label: 'RW 13 (Campuran)' },
           ].map((pill) => {
             const active = selectedRWFilter === pill.id;
             return (

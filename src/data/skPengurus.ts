@@ -324,62 +324,342 @@ export const MASTER_SK_PENGURUS: RWSKPengurus[] = [
     ],
   },
 
-  // RW 06 s/d RW 13 - Antrean Digitalisasi
+  // RW 06 - Cluster Cempaka
   {
     rw: 'RW 06',
-    namaCluster: 'Cempaka 1.1 - 2.3',
-    ketuaRW: 'Dalam Proses Input',
-    status: 'Dalam Proses Digitalisasi',
-    rtList: [],
+    namaCluster: 'Cempaka 1.1 - 3.3',
+    ketuaRW: 'Neng Iti',
+    status: 'Terverifikasi SK',
+    rtList: [
+      {
+        rt: 'RT 01',
+        ketuaRT: 'Acih Sumiati',
+        kelompokList: [
+          { namaKelompok: 'Cempaka 1.1', namaKader: 'Rukoyah' },
+          { namaKelompok: 'Cempaka 1.2', namaKader: 'Rizki' },
+          { namaKelompok: 'Cempaka 1.3', namaKader: 'Sri Rahayu' },
+          { namaKelompok: 'Cempaka 1.4', namaKader: 'Eva' },
+        ],
+      },
+      {
+        rt: 'RT 02',
+        ketuaRT: 'Khoeriyah',
+        kelompokList: [
+          { namaKelompok: 'Cempaka 2.1', namaKader: 'Wiwi Alfatunisa' },
+          { namaKelompok: 'Cempaka 2.2', namaKader: 'Rosdiana' },
+          { namaKelompok: 'Cempaka 2.3', namaKader: 'Ratna Dewi' },
+        ],
+      },
+      {
+        rt: 'RT 03',
+        ketuaRT: 'Yeni Imayanti',
+        kelompokList: [
+          { namaKelompok: 'Cempaka 3.1', namaKader: 'Nita' },
+          { namaKelompok: 'Cempaka 3.2', namaKader: 'Yuni Saraswati' },
+          { namaKelompok: 'Cempaka 3.3', namaKader: 'Nurmala' },
+        ],
+      },
+    ],
   },
+
+  // RW 07 - Cluster Nusa Indah
   {
     rw: 'RW 07',
-    namaCluster: 'RW 07',
-    ketuaRW: 'Dalam Proses Input',
-    status: 'Dalam Proses Digitalisasi',
-    rtList: [],
+    namaCluster: 'Nusa Indah',
+    ketuaRW: 'Siti Aminah',
+    status: 'Terverifikasi SK',
+    rtList: [
+      {
+        rt: 'RT 01',
+        ketuaRT: 'Elih Sugirti',
+        kelompokList: [
+          { namaKelompok: 'Nusa Indah 1.1', namaKader: 'Meliyanti' },
+          { namaKelompok: 'Nusa Indah 1.2', namaKader: 'Resti' },
+          { namaKelompok: 'Nusa Indah 1.3', namaKader: 'Nida' },
+          { namaKelompok: 'Nusa Indah 1.4', namaKader: 'Lilis Dayanti' },
+          { namaKelompok: 'Nusa Indah 1.5', namaKader: 'Beben' },
+          { namaKelompok: 'Nusa Indah 1.6', namaKader: 'Silvia' },
+        ],
+      },
+      {
+        rt: 'RT 02',
+        ketuaRT: 'Eles Bayuni',
+        kelompokList: [
+          { namaKelompok: 'Nusa Indah 2.1', namaKader: 'Salbiyah' },
+          { namaKelompok: 'Nusa Indah 2.2', namaKader: 'Sadiyah' },
+          { namaKelompok: 'Nusa Indah 2.3', namaKader: 'Dewi' },
+          { namaKelompok: 'Nusa Indah 2.4', namaKader: 'Nurhikmah' },
+          { namaKelompok: 'Nusa Indah 2.5', namaKader: 'Waltiah' },
+          { namaKelompok: 'Nusa Indah 2.6', namaKader: 'Himsatun' },
+          { namaKelompok: 'Nusa Indah 2.7', namaKader: 'Siti Masitoh' },
+        ],
+      },
+      {
+        rt: 'RT 03',
+        ketuaRT: 'Rini',
+        kelompokList: [
+          { namaKelompok: 'Nusa Indah 3.1', namaKader: 'Santiaati' },
+          { namaKelompok: 'Nusa Indah 3.2', namaKader: 'Safitri' },
+          { namaKelompok: 'Nusa Indah 3.3', namaKader: 'Nuraeni' },
+          { namaKelompok: 'Nusa Indah 3.4', namaKader: 'Elis' },
+          { namaKelompok: 'Nusa Indah 3.5', namaKader: 'Mulyani' },
+          { namaKelompok: 'Nusa Indah 3.6', namaKader: 'Neng Yuyu' },
+        ],
+      },
+      {
+        rt: 'RT 04',
+        ketuaRT: 'Silva',
+        kelompokList: [
+          { namaKelompok: 'Nusa Indah 4.1', namaKader: 'Siti Hadijah' },
+          { namaKelompok: 'Nusa Indah 4.2', namaKader: 'Dini Ardiani' },
+          { namaKelompok: 'Nusa Indah 4.3', namaKader: 'Iryani' },
+          { namaKelompok: 'Nusa Indah 4.4', namaKader: 'Zuraedah' },
+          { namaKelompok: 'Nusa Indah 4.5', namaKader: 'Sumarni' },
+          { namaKelompok: 'Nusa Indah 4.6', namaKader: 'Sugiarti' },
+        ],
+      },
+    ],
   },
+
+  // RW 08 - Cluster Anggrek Bulan
   {
     rw: 'RW 08',
     namaCluster: 'Anggrek Bulan 1.1 - 3.5',
-    ketuaRW: 'Dalam Proses Input',
-    status: 'Dalam Proses Digitalisasi',
-    rtList: [],
+    ketuaRW: 'Yeyen Herawati',
+    status: 'Terverifikasi SK',
+    rtList: [
+      {
+        rt: 'RT 01',
+        ketuaRT: 'Iis',
+        kelompokList: [
+          { namaKelompok: 'Anggrek Bulan 1.1', namaKader: 'Erna' },
+          { namaKelompok: 'Anggrek Bulan 1.2', namaKader: 'Leni' },
+          { namaKelompok: 'Anggrek Bulan 1.3', namaKader: 'Epah Kholifah' },
+          { namaKelompok: 'Anggrek Bulan 1.4', namaKader: 'Aisyah' },
+          { namaKelompok: 'Anggrek Bulan 1.5', namaKader: 'Siti Lisa' },
+        ],
+      },
+      {
+        rt: 'RT 02',
+        ketuaRT: 'Ida Farida',
+        kelompokList: [
+          { namaKelompok: 'Anggrek Bulan 2.1', namaKader: 'Rika' },
+          { namaKelompok: 'Anggrek Bulan 2.2', namaKader: 'Kiki' },
+          { namaKelompok: 'Anggrek Bulan 2.3', namaKader: 'Nenah' },
+          { namaKelompok: 'Anggrek Bulan 2.4', namaKader: 'Yuli' },
+          { namaKelompok: 'Anggrek Bulan 2.5', namaKader: 'Murni' },
+          { namaKelompok: 'Anggrek Bulan 2.6', namaKader: 'Nurmilah' },
+        ],
+      },
+      {
+        rt: 'RT 03',
+        ketuaRT: 'Yeti Nurhayati',
+        kelompokList: [
+          { namaKelompok: 'Anggrek Bulan 3.1', namaKader: 'Siti Maesaroh' },
+          { namaKelompok: 'Anggrek Bulan 3.2', namaKader: 'Maesaroh' },
+          { namaKelompok: 'Anggrek Bulan 3.3', namaKader: 'Saemah' },
+          { namaKelompok: 'Anggrek Bulan 3.4', namaKader: 'Iip Kholifah' },
+          { namaKelompok: 'Anggrek Bulan 3.5', namaKader: 'Sarifah' },
+        ],
+      },
+    ],
   },
+
+  // RW 09 - Cluster Dahlia
   {
     rw: 'RW 09',
     namaCluster: 'Dahlia 1.1 - 4.5',
-    ketuaRW: 'Dalam Proses Input',
-    status: 'Dalam Proses Digitalisasi',
-    rtList: [],
+    ketuaRW: 'Ratna Novianti',
+    status: 'Terverifikasi SK',
+    rtList: [
+      {
+        rt: 'RT 01',
+        ketuaRT: 'Desi',
+        kelompokList: [
+          { namaKelompok: 'Dahlia 1.1', namaKader: 'Putri' },
+          { namaKelompok: 'Dahlia 1.2', namaKader: 'Wida' },
+          { namaKelompok: 'Dahlia 1.3', namaKader: 'Encah' },
+          { namaKelompok: 'Dahlia 1.4', namaKader: 'Fitri' },
+        ],
+      },
+      {
+        rt: 'RT 02',
+        ketuaRT: 'Aah Solihat',
+        kelompokList: [
+          { namaKelompok: 'Dahlia 2.1', namaKader: 'Dian' },
+          { namaKelompok: 'Dahlia 2.2', namaKader: 'Aisyah' },
+          { namaKelompok: 'Dahlia 2.3', namaKader: 'Lilis' },
+          { namaKelompok: 'Dahlia 2.4', namaKader: 'Tiara' },
+        ],
+      },
+      {
+        rt: 'RT 03',
+        ketuaRT: 'Tita',
+        kelompokList: [
+          { namaKelompok: 'Dahlia 3.1', namaKader: 'Kaila' },
+          { namaKelompok: 'Dahlia 3.2', namaKader: 'Reni' },
+          { namaKelompok: 'Dahlia 3.3', namaKader: 'Dini' },
+          { namaKelompok: 'Dahlia 3.4', namaKader: 'Eneng' },
+        ],
+      },
+      {
+        rt: 'RT 04',
+        ketuaRT: 'Mawar',
+        kelompokList: [
+          { namaKelompok: 'Dahlia 4.1', namaKader: 'Nurlaelah' },
+          { namaKelompok: 'Dahlia 4.2', namaKader: 'Mirnasari' },
+          { namaKelompok: 'Dahlia 4.3', namaKader: 'Meiliawati' },
+          { namaKelompok: 'Dahlia 4.4', namaKader: 'Saewaliah' },
+          { namaKelompok: 'Dahlia 4.5', namaKader: 'Anisa' },
+        ],
+      },
+    ],
   },
+
+  // RW 10 - Cluster Anggrek Merah (Tetap Dalam Antrean Digitalisasi SK Fisik)
   {
     rw: 'RW 10',
     namaCluster: 'Anggrek Merah',
-    ketuaRW: 'Dalam Proses Input',
+    ketuaRW: 'Dalam Proses Digitalisasi SK Fisik',
     status: 'Dalam Proses Digitalisasi',
     rtList: [],
   },
+
+  // RW 11 - Cluster Bougenvile
   {
     rw: 'RW 11',
-    namaCluster: 'Bougenville 1.1 - 4.4',
-    ketuaRW: 'Dalam Proses Input',
-    status: 'Dalam Proses Digitalisasi',
-    rtList: [],
+    namaCluster: 'Bougenvile 1.1 - 4.4',
+    ketuaRW: 'Dede Siti Salma',
+    status: 'Terverifikasi SK',
+    rtList: [
+      {
+        rt: 'RT 01',
+        ketuaRT: 'Darwati',
+        kelompokList: [
+          { namaKelompok: 'Bougenvile 1.1', namaKader: 'Siti Masitoh' },
+          { namaKelompok: 'Bougenvile 1.2', namaKader: 'Lusiana' },
+          { namaKelompok: 'Bougenvile 1.3', namaKader: 'Husmiati' },
+          { namaKelompok: 'Bougenvile 1.4', namaKader: 'Yati' },
+          { namaKelompok: 'Bougenvile 1.5', namaKader: 'Hartati' },
+        ],
+      },
+      {
+        rt: 'RT 02',
+        ketuaRT: 'Yayan Suryani',
+        kelompokList: [
+          { namaKelompok: 'Bougenvile 2.1', namaKader: 'Eva Haryani' },
+          { namaKelompok: 'Bougenvile 2.2', namaKader: 'Sri Haryati' },
+          { namaKelompok: 'Bougenvile 2.3', namaKader: 'Neneng Ratna Ningsih' },
+          { namaKelompok: 'Bougenvile 2.4', namaKader: 'Siti Julacha' },
+        ],
+      },
+      {
+        rt: 'RT 03',
+        ketuaRT: 'Nurul Hayati',
+        kelompokList: [
+          { namaKelompok: 'Bougenvile 3.1', namaKader: 'Meti Sutini' },
+          { namaKelompok: 'Bougenvile 3.2', namaKader: 'Sri Haryati' },
+        ],
+      },
+      {
+        rt: 'RT 04',
+        ketuaRT: 'Enyi Sumiati',
+        kelompokList: [
+          { namaKelompok: 'Bougenvile 4.1', namaKader: 'Dea Alvionita' },
+          { namaKelompok: 'Bougenvile 4.2', namaKader: 'Yulianti' },
+          { namaKelompok: 'Bougenvile 4.3', namaKader: 'Lia Verawati' },
+          { namaKelompok: 'Bougenvile 4.4', namaKader: 'Erlin' },
+        ],
+      },
+    ],
   },
+
+  // RW 12 - Cluster Kenanga
   {
     rw: 'RW 12',
     namaCluster: 'Kenanga 1.1 - 3.5',
-    ketuaRW: 'Dalam Proses Input',
-    status: 'Dalam Proses Digitalisasi',
-    rtList: [],
+    ketuaRW: 'R. Sunarsih',
+    status: 'Terverifikasi SK',
+    rtList: [
+      {
+        rt: 'RT 01',
+        ketuaRT: 'Yanti',
+        kelompokList: [
+          { namaKelompok: 'Kenanga 1.1', namaKader: 'Yati' },
+          { namaKelompok: 'Kenanga 1.2', namaKader: 'Asmiati' },
+          { namaKelompok: 'Kenanga 1.3', namaKader: 'Anita Sri Wahyuni' },
+          { namaKelompok: 'Kenanga 1.4', namaKader: 'Yuningsih' },
+        ],
+      },
+      {
+        rt: 'RT 02',
+        ketuaRT: 'Ida Farida',
+        kelompokList: [
+          { namaKelompok: 'Kenanga 2.1', namaKader: 'Sri Maskah' },
+          { namaKelompok: 'Kenanga 2.2', namaKader: 'Nia Aprilia' },
+          { namaKelompok: 'Kenanga 2.3', namaKader: 'Yulia' },
+          { namaKelompok: 'Kenanga 2.4', namaKader: 'Rini Susanti' },
+          { namaKelompok: 'Kenanga 2.5', namaKader: 'Mimi' },
+        ],
+      },
+      {
+        rt: 'RT 03',
+        ketuaRT: 'Tri Subuantini',
+        kelompokList: [
+          { namaKelompok: 'Kenanga 3.1', namaKader: 'Dian Marta' },
+          { namaKelompok: 'Kenanga 3.2', namaKader: 'Suparti' },
+          { namaKelompok: 'Kenanga 3.3', namaKader: 'Rika Maelani' },
+          { namaKelompok: 'Kenanga 3.4', namaKader: 'Sally Angelia' },
+          { namaKelompok: 'Kenanga 3.5', namaKader: 'Puji Laksanawati' },
+        ],
+      },
+    ],
   },
+
+  // RW 13 - Cluster Kenanga, Anggrek, Teratai, Tulip
   {
     rw: 'RW 13',
     namaCluster: 'Kenanga, Anggrek, Teratai, Tulip',
-    ketuaRW: 'Dalam Proses Input',
-    status: 'Dalam Proses Digitalisasi',
-    rtList: [],
+    ketuaRW: 'Evi Sari Priantini',
+    status: 'Terverifikasi SK',
+    rtList: [
+      {
+        rt: 'RT 01',
+        ketuaRT: 'Mira Laksmi Indiasa',
+        kelompokList: [
+          { namaKelompok: 'Kenanga 1.1', namaKader: 'Triana Palupi' },
+          { namaKelompok: 'Kenanga 1.2', namaKader: 'Wahyuni' },
+          { namaKelompok: 'Kenanga 1.3', namaKader: 'Gina Gistindar' },
+        ],
+      },
+      {
+        rt: 'RT 02',
+        ketuaRT: 'Susi Gantini',
+        kelompokList: [
+          { namaKelompok: 'Anggrek 2.1', namaKader: 'Alphina' },
+          { namaKelompok: 'Anggrek 2.2', namaKader: 'Sarah' },
+          { namaKelompok: 'Anggrek 2.3', namaKader: 'Ratna' },
+        ],
+      },
+      {
+        rt: 'RT 03',
+        ketuaRT: 'Nina',
+        kelompokList: [
+          { namaKelompok: 'Teratai 3.1', namaKader: 'Eva' },
+          { namaKelompok: 'Teratai 3.2', namaKader: 'Siti Rosmanah' },
+          { namaKelompok: 'Teratai 3.3', namaKader: 'Diah Wulandari' },
+        ],
+      },
+      {
+        rt: 'RT 04',
+        ketuaRT: 'Selly',
+        kelompokList: [
+          { namaKelompok: 'Tulip 4.1', namaKader: 'Etih' },
+          { namaKelompok: 'Tulip 4.2', namaKader: 'Penti Lusiana' },
+          { namaKelompok: 'Tulip 4.3', namaKader: 'Apriyeni' },
+        ],
+      },
+    ],
   },
 ];
 
