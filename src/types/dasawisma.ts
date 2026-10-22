@@ -185,6 +185,11 @@ export interface RWMetricsAggregated {
   rw: string; // 'RW 01' .. 'RW 13'
   total_rt: number;
   total_dasawisma: number;
+  target_rt?: number;
+  target_dasawisma?: number;
+  has_data?: boolean;
+  status_pendataan?: 'Aktif Terdata' | 'Tahap Pendataan Lapangan';
+  cluster_name?: string;
   total_kk: number;
   total_jiwa: number;
   total_l: number;
@@ -223,6 +228,9 @@ export interface DashboardPayload {
     total_laki: number;
     total_perempuan: number;
     persen_rumah_sehat: number;
+    digital_kk_count?: number;
+    digital_dasawisma_count?: number;
+    digital_rw_aktif?: string[];
   };
   demographics: DemographicSummary;
   sanitation: SanitationMetrics;

@@ -15,6 +15,7 @@ import {
   SanitationMetrics,
 } from '@/types/dasawisma';
 import { normalizeTwoDigit } from './sanitizer';
+import { RW_TARGET_MAP, KELURAHAN_INFO } from '@/data/wilayah';
 
 export const DAFTAR_RW_KEYS = [
   'RW 01',
@@ -364,17 +365,20 @@ export function aggregateRwList(
 ): RWMetricsAggregated[] {
   return DAFTAR_RW_KEYS.map((rwCode) => {
     const rwNum = rwCode.replace(/\D/g, ''); // "01" ... "13"
+    const target = RW_TARGET_MAP[rwCode] || { rt: 4, dasawisma: 15, name: rwCode };
     const rwFamilies = buku1List.filter((f) => normalizeTwoDigit(f.rw) === rwNum);
     const rwBuku2 = buku2List.filter((b) => normalizeTwoDigit(b.rw) === rwNum);
     const rwBuku3 = buku3List.filter((b) => normalizeTwoDigit(b.rw) === rwNum);
 
-    // Jika RW ini memiliki data tanggapan valid di Google Sheets
-    if (rwFamilies.length > 0 || rwBuku2.length > 0 || rwBuku3.length > 0) {
+    // RW aktif terdata jika memiliki data keluarga/KK di Buku 1 atau Buku 2
+    const hasData = rwFamilies.length > 0 || rwBuku2.length > 0;
+
+    if (hasData) {
       const totalKK =
         rwFamilies.length ||
         (rwBuku2.length > 0
           ? rwBuku2.reduce((acc, b) => acc + b.jml_kk, 0)
-          : 1);
+          : 0);
 
       const allCitizens = rwFamilies.flatMap((f) => f.anggota_warga);
       const totalJiwa =
@@ -432,20 +436,15 @@ export function aggregateRwList(
       const sani = computeSanitation(rwFamilies, rwBuku2);
       const progs = computePrograms(rwFamilies, rwBuku2);
 
-      const uniqueRt = new Set<string>();
-      rwFamilies.forEach((f) => f.rt && uniqueRt.add(f.rt));
-      rwBuku2.forEach((b) => b.rt && uniqueRt.add(b.rt));
-      rwBuku3.forEach((b) => b.rt && uniqueRt.add(b.rt));
-
-      const uniqueDasa = new Set<string>();
-      rwFamilies.forEach((f) => f.nama_dasawisma && uniqueDasa.add(f.nama_dasawisma));
-      rwBuku2.forEach((b) => b.nama_dasawisma && uniqueDasa.add(b.nama_dasawisma));
-      rwBuku3.forEach((b) => b.nama_dasawisma && uniqueDasa.add(b.nama_dasawisma));
-
       return {
         rw: rwCode,
-        total_rt: Math.max(1, uniqueRt.size),
-        total_dasawisma: Math.max(1, uniqueDasa.size),
+        total_rt: target.rt,
+        total_dasawisma: target.dasawisma,
+        target_rt: target.rt,
+        target_dasawisma: target.dasawisma,
+        has_data: true,
+        status_pendataan: 'Aktif Terdata',
+        cluster_name: target.cluster,
         total_kk: totalKK,
         total_jiwa: totalJiwa,
         total_l: totalL,
@@ -468,15 +467,20 @@ export function aggregateRwList(
           totalKK > 0 ? Number(((progs.up2k / totalKK) * 100).toFixed(1)) : 0,
         pekarangan_pkk_count: progs.pekarangan,
         kerja_bakti_count: progs.kerjaBakti,
-        is_pilot: false,
+        is_pilot: rwCode === 'RW 10' || rwCode === 'RW 11',
       };
     }
 
-    // Kelompok RW lain yang belum ada data: MULAI DARI ANGKA 0
+    // Kelompok RW dalam tahap pendataan lapangan (belum ada input keluarga/KK)
     return {
       rw: rwCode,
-      total_rt: 0,
-      total_dasawisma: 0,
+      total_rt: target.rt,
+      total_dasawisma: target.dasawisma,
+      target_rt: target.rt,
+      target_dasawisma: target.dasawisma,
+      has_data: false,
+      status_pendataan: 'Tahap Pendataan Lapangan',
+      cluster_name: target.cluster,
       total_kk: 0,
       total_jiwa: 0,
       total_l: 0,

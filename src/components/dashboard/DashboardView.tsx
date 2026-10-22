@@ -75,17 +75,18 @@ export function DashboardView({ initialData }: DashboardViewProps) {
     );
 
     const rwMatch = initialData.rw_list.find((r) => r.rw === selectedRW);
+    const hasData = rwFamilies.length > 0 || rwBuku2.length > 0;
 
-    // Jika RW memiliki tanggapan riil di Google Sheets (seperti RW 12):
-    if (rwFamilies.length > 0 || rwBuku2.length > 0 || rwBuku3.length > 0) {
+    // Jika RW memiliki tanggapan riil di Google Sheets
+    if (hasData) {
       const citizens = rwFamilies.flatMap((f) => f.anggota_warga);
       const kpi = {
-        total_dasawisma: rwMatch ? rwMatch.total_dasawisma : 1,
-        total_kk: rwFamilies.length || (rwBuku2.length > 0 ? rwBuku2.reduce((acc, b) => acc + b.jml_kk, 0) : 1),
+        total_dasawisma: rwMatch ? rwMatch.total_dasawisma : 0,
+        total_kk: rwFamilies.length || (rwBuku2.length > 0 ? rwBuku2.reduce((acc, b) => acc + b.jml_kk, 0) : 0),
         total_jiwa: rwFamilies.reduce((acc, f) => acc + f.jml_anggota, 0) || citizens.length,
         total_laki: rwFamilies.reduce((acc, f) => acc + f.jml_laki, 0) || citizens.filter((c) => c.jenis_kelamin === 'L').length,
         total_perempuan: rwFamilies.reduce((acc, f) => acc + f.jml_perempuan, 0) || citizens.filter((c) => c.jenis_kelamin === 'P').length,
-        persen_rumah_sehat: rwMatch ? rwMatch.persen_rumah_sehat : 100,
+        persen_rumah_sehat: rwMatch ? rwMatch.persen_rumah_sehat : 0,
       };
 
       const realPyramid = computePyramid(citizens);
@@ -106,9 +107,9 @@ export function DashboardView({ initialData }: DashboardViewProps) {
       };
     }
 
-    // Untuk RW yang belum ada data riil, seluruh indikator bernilai 0 murni
+    // Untuk RW yang belum ada data riil, indikator bernilai 0 tapi total_dasawisma tetap menampilkan target SK
     const zeroKPI = {
-      total_dasawisma: 0,
+      total_dasawisma: rwMatch ? rwMatch.total_dasawisma : 0,
       total_kk: 0,
       total_jiwa: 0,
       total_laki: 0,

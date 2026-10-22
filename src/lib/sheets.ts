@@ -27,6 +27,7 @@ import {
   computeSanitation,
   computeKia,
 } from './aggregator';
+import { KELURAHAN_INFO, RW_TARGET_MAP } from '@/data/wilayah';
 
 const DEFAULT_BUKU1_URL =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vQcRyarK4PiA4MCAn6l8NNjeLpZN1X8w6E34rO4f2GdLIO5IKfDjxGfJso5hh6Qs6N5ufYc4pCnMx71/pub?output=csv';
@@ -198,8 +199,12 @@ export async function fetchDasawismaData(
       ? rwMetricsList
       : rwMetricsList.filter((r) => r.rw === selectedRW);
 
-  // 4. Hitung Agregat Makro KPI Murni
-  const totalDasawisma = activeRWs.reduce((sum, r) => sum + r.total_dasawisma, 0);
+  // 4. Hitung Agregat Makro KPI
+  const totalDasawisma =
+    selectedRW === 'ALL'
+      ? KELURAHAN_INFO.totalDasawisma
+      : (RW_TARGET_MAP[selectedRW]?.dasawisma ?? activeRWs[0]?.total_dasawisma ?? 0);
+
   const totalKK = activeRWs.reduce((sum, r) => sum + r.total_kk, 0);
   const totalJiwa = activeRWs.reduce((sum, r) => sum + r.total_jiwa, 0);
   const totalLaki = activeRWs.reduce((sum, r) => sum + r.total_l, 0);
@@ -207,6 +212,14 @@ export async function fetchDasawismaData(
   const totalRumahSehat = activeRWs.reduce((sum, r) => sum + r.rumah_sehat_count, 0);
   const persenRumahSehat =
     totalKK > 0 ? Number(((totalRumahSehat / totalKK) * 100).toFixed(1)) : 0;
+
+  // Realisasi digital aktif:
+  const digitalKK = buku1List.length;
+  const activeDawisNames = new Set(
+    buku1List.map((f) => f.nama_dasawisma).filter(Boolean)
+  );
+  const digitalDasawisma = activeDawisNames.size;
+  const activeRwNames = rwMetricsList.filter((r) => r.has_data).map((r) => r.rw);
 
   // 5. Demografi Murni dari CitizenEntity[]
   const activeCitizens = activeFamilies.flatMap((f) => f.anggota_warga);
@@ -229,6 +242,9 @@ export async function fetchDasawismaData(
       total_laki: totalLaki,
       total_perempuan: totalPerempuan,
       persen_rumah_sehat: persenRumahSehat,
+      digital_kk_count: digitalKK,
+      digital_dasawisma_count: digitalDasawisma,
+      digital_rw_aktif: activeRwNames,
     },
     demographics: {
       total_jiwa: totalJiwa,

@@ -20,12 +20,13 @@ export function StatCards({
   persenRumahSehat,
   selectedRW = 'ALL',
 }: StatCardsProps) {
+  const isFiltered = selectedRW !== 'ALL';
+  const hasData = totalKK > 0;
+
   const persenLaki =
     totalJiwa > 0 ? ((totalLaki / totalJiwa) * 100).toFixed(1) : '50.0';
   const persenPerempuan =
     totalJiwa > 0 ? ((totalPerempuan / totalJiwa) * 100).toFixed(1) : '50.0';
-
-  const isFiltered = selectedRW !== 'ALL';
 
   return (
     <section aria-label="Ringkasan Indikator Kunci Dasawisma" className="w-full">
@@ -45,7 +46,11 @@ export function StatCards({
               {totalDasawisma.toLocaleString('id-ID')}
             </div>
             <p className="text-xs text-slate-600 mt-1 font-medium">
-              {isFiltered ? `Kelompok binaan di ${selectedRW}` : 'Tersebar aktif di 13 RW binaan'}
+              {isFiltered
+                ? hasData
+                  ? `Target SK Lurah 2026 • Terdata digital: ${totalKK} KK`
+                  : `Target SK Lurah 2026 di ${selectedRW} (Tahap Pendataan)`
+                : 'Target SK Lurah 2026 • Realisasi digital: RW 10 & 11 (77 KK)'}
             </p>
           </div>
         </div>
@@ -62,12 +67,14 @@ export function StatCards({
           </div>
           <div className="mt-3">
             <div className="text-3xl font-extrabold text-slate-900 tracking-tight">
-              {totalKK.toLocaleString('id-ID')}
+              {hasData ? totalKK.toLocaleString('id-ID') : '0'}
             </div>
             <p className="text-xs text-slate-600 mt-1 font-medium">
               {isFiltered
-                ? `Total rumah tangga terdata di ${selectedRW}`
-                : '100% Rumah tangga terdata Buku 1 & 2'}
+                ? hasData
+                  ? `Total rumah tangga terdata di ${selectedRW}`
+                  : `Tahap pendataan kader lapangan di ${selectedRW}`
+                : 'Realisasi digital masuk (RW 10 & RW 11)'}
             </p>
           </div>
         </div>
@@ -84,28 +91,33 @@ export function StatCards({
           </div>
           <div className="mt-3">
             <div className="text-3xl font-extrabold text-slate-900 tracking-tight">
-              {totalJiwa.toLocaleString('id-ID')}
+              {hasData ? totalJiwa.toLocaleString('id-ID') : '0'}
             </div>
-            {/* Visual Mini Proportion Bar */}
-            <div className="mt-2">
-              <div
-                className="w-full bg-slate-100 rounded-md h-2.5 overflow-hidden flex"
-                title={`Laki-laki: ${totalLaki.toLocaleString('id-ID')} (${persenLaki}%), Perempuan: ${totalPerempuan.toLocaleString('id-ID')} (${persenPerempuan}%)`}
-              >
+            {hasData ? (
+              <div className="mt-2">
                 <div
-                  className="bg-blue-600 h-full transition-all duration-500"
-                  style={{ width: `${persenLaki}%` }}
-                />
-                <div
-                  className="bg-rose-500 h-full transition-all duration-500"
-                  style={{ width: `${persenPerempuan}%` }}
-                />
+                  className="w-full bg-slate-100 rounded-md h-2.5 overflow-hidden flex"
+                  title={`Laki-laki: ${totalLaki.toLocaleString('id-ID')} (${persenLaki}%), Perempuan: ${totalPerempuan.toLocaleString('id-ID')} (${persenPerempuan}%)`}
+                >
+                  <div
+                    className="bg-blue-600 h-full transition-all duration-500"
+                    style={{ width: `${persenLaki}%` }}
+                  />
+                  <div
+                    className="bg-rose-500 h-full transition-all duration-500"
+                    style={{ width: `${persenPerempuan}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[11px] font-semibold mt-1">
+                  <span className="text-blue-700">L: {totalLaki.toLocaleString('id-ID')} ({persenLaki}%)</span>
+                  <span className="text-rose-700">P: {totalPerempuan.toLocaleString('id-ID')} ({persenPerempuan}%)</span>
+                </div>
               </div>
-              <div className="flex justify-between text-[11px] font-semibold mt-1">
-                <span className="text-blue-700">L: {totalLaki.toLocaleString('id-ID')} ({persenLaki}%)</span>
-                <span className="text-rose-700">P: {totalPerempuan.toLocaleString('id-ID')} ({persenPerempuan}%)</span>
-              </div>
-            </div>
+            ) : (
+              <p className="text-xs text-slate-500 mt-1 font-medium">
+                Data anggota keluarga dalam proses penginputan
+              </p>
+            )}
           </div>
         </div>
 
@@ -120,17 +132,37 @@ export function StatCards({
             </div>
           </div>
           <div className="mt-3">
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                {persenRumahSehat}%
-              </span>
-              <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-                Layak
-              </span>
-            </div>
-            <p className="text-xs text-slate-600 mt-1 font-medium">
-              Memiliki jamban septic tank layak & air bersih
-            </p>
+            {hasData ? (
+              <>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-extrabold text-slate-900 tracking-tight">
+                    {persenRumahSehat}%
+                  </span>
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    Layak
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 mt-1 font-medium">
+                  {isFiltered
+                    ? `Sanitasi layak di ${selectedRW}`
+                    : 'Basis 77 KK terdata digital (Buku 1 & 2)'}
+                </p>
+              </>
+            ) : (
+              <>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-3xl font-extrabold text-slate-400 tracking-tight">
+                    -
+                  </span>
+                  <span className="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                    Tahap Pendataan
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-1 font-medium">
+                  Menunggu verifikasi sanitasi kader lapangan
+                </p>
+              </>
+            )}
           </div>
         </div>
       </div>

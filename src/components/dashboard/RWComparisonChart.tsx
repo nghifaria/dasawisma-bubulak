@@ -38,60 +38,92 @@ interface CustomTooltipProps {
 function CustomTooltip({ active, payload, label, mode }: CustomTooltipProps) {
   if (!active || !payload || !payload.length) return null;
   const rwData = payload[0].payload;
+  const hasData = rwData.total_kk > 0;
 
   return (
     <div className="bg-slate-900 text-white p-3 rounded-xl shadow-md text-xs max-w-xs border border-slate-700">
       <div className="flex items-center justify-between gap-2 border-b border-slate-700 pb-1.5 mb-1.5">
         <strong className="text-sm font-bold text-emerald-400">{label}</strong>
+        {hasData ? (
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-emerald-900/80 text-emerald-300 font-semibold border border-emerald-700">
+            Aktif Terdata
+          </span>
+        ) : (
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-900/80 text-amber-300 font-semibold border border-amber-700">
+            Tahap Pendataan
+          </span>
+        )}
       </div>
 
       <div className="space-y-1">
-        {mode === 'jiwa' && (
+        {!hasData ? (
           <>
-            <p className="flex justify-between gap-4">
-              <span className="text-slate-300">Total Jiwa:</span>
-              <span className="font-bold text-white">{rwData.total_jiwa.toLocaleString('id-ID')}</span>
+            <p className="text-slate-300 text-[11px]">
+              Kader sedang menyelesaikan pengisian formulir pendataan lapangan.
             </p>
-            <p className="flex justify-between gap-4 text-blue-300">
-              <span>Laki-laki:</span>
-              <span className="font-semibold">{rwData.total_l} ({((rwData.total_l / rwData.total_jiwa) * 100).toFixed(1)}%)</span>
-            </p>
-            <p className="flex justify-between gap-4 text-rose-300">
-              <span>Perempuan:</span>
-              <span className="font-semibold">{rwData.total_p} ({((rwData.total_p / rwData.total_jiwa) * 100).toFixed(1)}%)</span>
-            </p>
-          </>
-        )}
-
-        {mode === 'kk' && (
-          <>
-            <p className="flex justify-between gap-4">
-              <span className="text-slate-300">Total Kepala Keluarga:</span>
-              <span className="font-bold text-white">{rwData.total_kk.toLocaleString('id-ID')}</span>
-            </p>
-            <p className="flex justify-between gap-4 text-emerald-300">
-              <span>Kelompok Dasawisma:</span>
-              <span className="font-semibold">{rwData.total_dasawisma}</span>
-            </p>
-          </>
-        )}
-
-        {mode === 'rumah_sehat' && (
-          <>
-            <p className="flex justify-between gap-4">
-              <span className="text-slate-300">Rumah Sehat:</span>
-              <span className="font-bold text-emerald-400">
-                {rwData.rumah_sehat_count} ({rwData.persen_rumah_sehat}%)
-              </span>
+            <p className="flex justify-between gap-4 text-emerald-300 pt-1 border-t border-slate-800">
+              <span>Target Dasawisma:</span>
+              <span className="font-bold text-white">{rwData.total_dasawisma} Kelompok</span>
             </p>
             <p className="flex justify-between gap-4 text-slate-300">
-              <span>Total KK:</span>
-              <span className="font-semibold">{rwData.total_kk}</span>
+              <span>Target RT:</span>
+              <span className="font-semibold text-white">{rwData.total_rt} RT</span>
             </p>
-            <p className="flex justify-between gap-4 text-slate-400">
-              <span>Kurang Sehat:</span>
-              <span className="font-semibold">{rwData.rumah_kurang_sehat_count}</span>
-            </p>
+          </>
+        ) : (
+          <>
+            {mode === 'jiwa' && (
+              <>
+                <p className="flex justify-between gap-4">
+                  <span className="text-slate-300">Total Jiwa:</span>
+                  <span className="font-bold text-white">{rwData.total_jiwa.toLocaleString('id-ID')}</span>
+                </p>
+                <p className="flex justify-between gap-4 text-blue-300">
+                  <span>Laki-laki:</span>
+                  <span className="font-semibold">
+                    {rwData.total_l} ({rwData.total_jiwa > 0 ? ((rwData.total_l / rwData.total_jiwa) * 100).toFixed(1) : 0}%)
+                  </span>
+                </p>
+                <p className="flex justify-between gap-4 text-rose-300">
+                  <span>Perempuan:</span>
+                  <span className="font-semibold">
+                    {rwData.total_p} ({rwData.total_jiwa > 0 ? ((rwData.total_p / rwData.total_jiwa) * 100).toFixed(1) : 0}%)
+                  </span>
+                </p>
+              </>
+            )}
+
+            {mode === 'kk' && (
+              <>
+                <p className="flex justify-between gap-4">
+                  <span className="text-slate-300">Total Kepala Keluarga:</span>
+                  <span className="font-bold text-white">{rwData.total_kk.toLocaleString('id-ID')}</span>
+                </p>
+                <p className="flex justify-between gap-4 text-emerald-300">
+                  <span>Target Dasawisma:</span>
+                  <span className="font-semibold">{rwData.total_dasawisma}</span>
+                </p>
+              </>
+            )}
+
+            {mode === 'rumah_sehat' && (
+              <>
+                <p className="flex justify-between gap-4">
+                  <span className="text-slate-300">Rumah Sehat:</span>
+                  <span className="font-bold text-emerald-400">
+                    {rwData.rumah_sehat_count} ({rwData.persen_rumah_sehat}%)
+                  </span>
+                </p>
+                <p className="flex justify-between gap-4 text-slate-300">
+                  <span>Total KK:</span>
+                  <span className="font-semibold">{rwData.total_kk}</span>
+                </p>
+                <p className="flex justify-between gap-4 text-slate-400">
+                  <span>Kurang Sehat:</span>
+                  <span className="font-semibold">{rwData.rumah_kurang_sehat_count}</span>
+                </p>
+              </>
+            )}
           </>
         )}
       </div>
