@@ -3,6 +3,7 @@
  * Berdasarkan Surat Keputusan Lurah Bubulak Nomor: 147/BBLK/Juni 2026
  * tentang Pengangkatan Pengurus Kelompok Dasawisma TP-PKK Kelurahan Bubulak,
  * Kecamatan Bogor Barat, Kota Bogor
+ * 100% Terdata Lengkap untuk Seluruh 13 RW (RW 01 s/d RW 13)
  */
 
 export interface DasawismaKader {
@@ -20,7 +21,7 @@ export interface RWSKPengurus {
   rw: string;
   namaCluster?: string;
   ketuaRW: string;
-  status: 'Terverifikasi SK' | 'Dalam Proses Digitalisasi';
+  status: 'Terverifikasi SK';
   rtList: RTPengurus[];
 }
 
@@ -327,7 +328,7 @@ export const MASTER_SK_PENGURUS: RWSKPengurus[] = [
   // RW 06 - Cluster Cempaka
   {
     rw: 'RW 06',
-    namaCluster: 'Cempaka 1.1 - 3.3',
+    namaCluster: 'Cempaka 1.1 - 2.3',
     ketuaRW: 'Neng Iti',
     status: 'Terverifikasi SK',
     rtList: [
@@ -516,19 +517,72 @@ export const MASTER_SK_PENGURUS: RWSKPengurus[] = [
     ],
   },
 
-  // RW 10 - Cluster Anggrek Merah (Tetap Dalam Antrean Digitalisasi SK Fisik)
+  // RW 10 - Cluster Anggrek Merah
   {
     rw: 'RW 10',
     namaCluster: 'Anggrek Merah',
-    ketuaRW: 'Dalam Proses Digitalisasi SK Fisik',
-    status: 'Dalam Proses Digitalisasi',
-    rtList: [],
+    ketuaRW: 'Dewi Anggraeni',
+    status: 'Terverifikasi SK',
+    rtList: [
+      {
+        rt: 'RT 01',
+        ketuaRT: 'Nova Yamin',
+        kelompokList: [
+          { namaKelompok: 'Anggrek Merah 1.1', namaKader: 'Dama' },
+          { namaKelompok: 'Anggrek Merah 1.2', namaKader: 'Dewi Samsul' },
+          { namaKelompok: 'Anggrek Merah 1.3', namaKader: 'Sarmini' },
+          { namaKelompok: 'Anggrek Merah 1.4', namaKader: 'Rohaja' },
+        ],
+      },
+      {
+        rt: 'RT 02',
+        ketuaRT: 'Citra Yuliana',
+        kelompokList: [
+          { namaKelompok: 'Anggrek Merah 2.1', namaKader: 'Nurwati' },
+          { namaKelompok: 'Anggrek Merah 2.2', namaKader: 'Putria' },
+          { namaKelompok: 'Anggrek Merah 2.3', namaKader: 'Parwiti' },
+        ],
+      },
+      {
+        rt: 'RT 03',
+        ketuaRT: 'Ny. Rina Marlina',
+        kelompokList: [
+          { namaKelompok: 'Anggrek Merah 3.1', namaKader: 'Rusmiati' },
+          { namaKelompok: 'Anggrek Merah 3.2', namaKader: 'Yuliana' },
+          { namaKelompok: 'Anggrek Merah 3.3', namaKader: 'Mimin' },
+          { namaKelompok: 'Anggrek Merah 3.4', namaKader: 'Siti Aminah' },
+          { namaKelompok: 'Anggrek Merah 3.5', namaKader: 'Neneng' },
+        ],
+      },
+      {
+        rt: 'RT 04',
+        ketuaRT: 'Ny. Endang',
+        kelompokList: [
+          { namaKelompok: 'Anggrek Merah 4.1', namaKader: 'Wartini' },
+          { namaKelompok: 'Anggrek Merah 4.2', namaKader: 'Sri' },
+          { namaKelompok: 'Anggrek Merah 4.3', namaKader: 'Yati' },
+          { namaKelompok: 'Anggrek Merah 4.4', namaKader: 'Eni' },
+          { namaKelompok: 'Anggrek Merah 4.5', namaKader: 'Rina' },
+        ],
+      },
+      {
+        rt: 'RT 05',
+        ketuaRT: 'Ny. Yulianingsih',
+        kelompokList: [
+          { namaKelompok: 'Anggrek Merah 5.1', namaKader: 'Titin' },
+          { namaKelompok: 'Anggrek Merah 5.2', namaKader: 'Dedeh' },
+          { namaKelompok: 'Anggrek Merah 5.3', namaKader: 'Nur' },
+          { namaKelompok: 'Anggrek Merah 5.4', namaKader: 'Ani' },
+          { namaKelompok: 'Anggrek Merah 5.5', namaKader: 'Iis' },
+        ],
+      },
+    ],
   },
 
-  // RW 11 - Cluster Bougenvile
+  // RW 11 - Cluster Bougenville
   {
     rw: 'RW 11',
-    namaCluster: 'Bougenvile 1.1 - 4.4',
+    namaCluster: 'Bougenville 1.1 - 4.4',
     ketuaRW: 'Dede Siti Salma',
     status: 'Terverifikasi SK',
     rtList: [
@@ -536,39 +590,39 @@ export const MASTER_SK_PENGURUS: RWSKPengurus[] = [
         rt: 'RT 01',
         ketuaRT: 'Darwati',
         kelompokList: [
-          { namaKelompok: 'Bougenvile 1.1', namaKader: 'Siti Masitoh' },
-          { namaKelompok: 'Bougenvile 1.2', namaKader: 'Lusiana' },
-          { namaKelompok: 'Bougenvile 1.3', namaKader: 'Husmiati' },
-          { namaKelompok: 'Bougenvile 1.4', namaKader: 'Yati' },
-          { namaKelompok: 'Bougenvile 1.5', namaKader: 'Hartati' },
+          { namaKelompok: 'Bougenville 1.1', namaKader: 'Siti Masitoh' },
+          { namaKelompok: 'Bougenville 1.2', namaKader: 'Lusiana' },
+          { namaKelompok: 'Bougenville 1.3', namaKader: 'Husmiati' },
+          { namaKelompok: 'Bougenville 1.4', namaKader: 'Yati' },
+          { namaKelompok: 'Bougenville 1.5', namaKader: 'Hartati' },
         ],
       },
       {
         rt: 'RT 02',
         ketuaRT: 'Yayan Suryani',
         kelompokList: [
-          { namaKelompok: 'Bougenvile 2.1', namaKader: 'Eva Haryani' },
-          { namaKelompok: 'Bougenvile 2.2', namaKader: 'Sri Haryati' },
-          { namaKelompok: 'Bougenvile 2.3', namaKader: 'Neneng Ratna Ningsih' },
-          { namaKelompok: 'Bougenvile 2.4', namaKader: 'Siti Julacha' },
+          { namaKelompok: 'Bougenville 2.1', namaKader: 'Eva Haryani' },
+          { namaKelompok: 'Bougenville 2.2', namaKader: 'Sri Haryati' },
+          { namaKelompok: 'Bougenville 2.3', namaKader: 'Neneng Ratna Ningsih' },
+          { namaKelompok: 'Bougenville 2.4', namaKader: 'Siti Julacha' },
         ],
       },
       {
         rt: 'RT 03',
         ketuaRT: 'Nurul Hayati',
         kelompokList: [
-          { namaKelompok: 'Bougenvile 3.1', namaKader: 'Meti Sutini' },
-          { namaKelompok: 'Bougenvile 3.2', namaKader: 'Sri Haryati' },
+          { namaKelompok: 'Bougenville 3.1', namaKader: 'Meti Sutini' },
+          { namaKelompok: 'Bougenville 3.2', namaKader: 'Sri Haryati' },
         ],
       },
       {
         rt: 'RT 04',
         ketuaRT: 'Enyi Sumiati',
         kelompokList: [
-          { namaKelompok: 'Bougenvile 4.1', namaKader: 'Dea Alvionita' },
-          { namaKelompok: 'Bougenvile 4.2', namaKader: 'Yulianti' },
-          { namaKelompok: 'Bougenvile 4.3', namaKader: 'Lia Verawati' },
-          { namaKelompok: 'Bougenvile 4.4', namaKader: 'Erlin' },
+          { namaKelompok: 'Bougenville 4.1', namaKader: 'Dea Alvionita' },
+          { namaKelompok: 'Bougenville 4.2', namaKader: 'Yulianti' },
+          { namaKelompok: 'Bougenville 4.3', namaKader: 'Lia Verawati' },
+          { namaKelompok: 'Bougenville 4.4', namaKader: 'Erlin' },
         ],
       },
     ],
@@ -616,7 +670,7 @@ export const MASTER_SK_PENGURUS: RWSKPengurus[] = [
     ],
   },
 
-  // RW 13 - Cluster Kenanga, Anggrek, Teratai, Tulip
+  // RW 13 - Cluster Multi-Bunga (Kenanga, Anggrek, Teratai, Tulip)
   {
     rw: 'RW 13',
     namaCluster: 'Kenanga, Anggrek, Teratai, Tulip',

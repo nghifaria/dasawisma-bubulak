@@ -5,41 +5,30 @@ import {
   MASTER_SK_PENGURUS,
   SK_PENGURUS_INFO,
   getSKDirectoryStats,
-  RWSKPengurus,
 } from '@/data/skPengurus';
 import {
   Search,
   Users,
   Home,
   CheckCircle2,
-  Clock,
   Award,
   ChevronDown,
   ChevronUp,
   FileText,
   UserCheck,
   MapPin,
-  Sparkles,
   X,
 } from 'lucide-react';
 
 export function PengurusDirectoryView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRWFilter, setSelectedRWFilter] = useState<string>('ALL');
-  const [expandedRWs, setExpandedRWs] = useState<Record<string, boolean>>({
-    'RW 01': true,
-    'RW 02': true,
-    'RW 03': true,
-    'RW 04': true,
-    'RW 05': true,
-    'RW 06': true,
-    'RW 07': true,
-    'RW 08': true,
-    'RW 09': true,
-    'RW 10': false,
-    'RW 11': true,
-    'RW 12': true,
-    'RW 13': true,
+  const [expandedRWs, setExpandedRWs] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {};
+    MASTER_SK_PENGURUS.forEach((r) => {
+      init[r.rw] = true;
+    });
+    return init;
   });
 
   const stats = useMemo(() => getSKDirectoryStats(), []);
@@ -49,13 +38,9 @@ export function PengurusDirectoryView() {
     const q = searchQuery.toLowerCase().trim();
 
     return MASTER_SK_PENGURUS.filter((rw) => {
-      // 1. Filter dropdown RW
-      if (selectedRWFilter !== 'ALL') {
-        if (selectedRWFilter === 'QUEUE') {
-          if (rw.status !== 'Dalam Proses Digitalisasi') return false;
-        } else if (rw.rw !== selectedRWFilter) {
-          return false;
-        }
+      // 1. Filter RW
+      if (selectedRWFilter !== 'ALL' && rw.rw !== selectedRWFilter) {
+        return false;
       }
 
       // 2. Filter search query
@@ -150,7 +135,7 @@ export function PengurusDirectoryView() {
               </div>
               <p className="text-xs text-emerald-700 mt-1 font-semibold flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
-                12 RW terverifikasi penuh (kecuali RW 10)
+                100% Lengkap (RW 01 - RW 13)
               </p>
             </div>
           </div>
@@ -274,7 +259,7 @@ export function PengurusDirectoryView() {
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
           <span className="text-slate-500 font-semibold mr-1 flex-shrink-0">Filter:</span>
           {[
-            { id: 'ALL', label: 'Semua RW' },
+            { id: 'ALL', label: 'Semua (13 RW)' },
             { id: 'RW 01', label: 'RW 01 (Teratai)' },
             { id: 'RW 02', label: 'RW 02 (Melati)' },
             { id: 'RW 03', label: 'RW 03 (Flamboyan)' },
@@ -284,10 +269,10 @@ export function PengurusDirectoryView() {
             { id: 'RW 07', label: 'RW 07 (Nusa Indah)' },
             { id: 'RW 08', label: 'RW 08 (Anggrek Bulan)' },
             { id: 'RW 09', label: 'RW 09 (Dahlia)' },
-            { id: 'RW 10', label: 'RW 10 (Antrean SK)' },
-            { id: 'RW 11', label: 'RW 11 (Bougenvile)' },
+            { id: 'RW 10', label: 'RW 10 (Anggrek Merah)' },
+            { id: 'RW 11', label: 'RW 11 (Bougenville)' },
             { id: 'RW 12', label: 'RW 12 (Kenanga)' },
-            { id: 'RW 13', label: 'RW 13 (Campuran)' },
+            { id: 'RW 13', label: 'RW 13 (Multi-Bunga)' },
           ].map((pill) => {
             const active = selectedRWFilter === pill.id;
             return (
@@ -334,46 +319,12 @@ export function PengurusDirectoryView() {
           </div>
         ) : (
           filteredData.map((rw) => {
-            const isVerified = rw.status === 'Terverifikasi SK';
             const isExpanded = expandedRWs[rw.rw] ?? true;
 
             const totalKelompok = rw.rtList.reduce(
               (acc, rt) => acc + rt.kelompokList.length,
               0
             );
-
-            // Jika RW masih dalam antrean digitalisasi
-            if (!isVerified) {
-              return (
-                <article
-                  key={rw.rw}
-                  className="bg-slate-50/70 rounded-2xl p-6 border-2 border-dashed border-slate-300 space-y-3"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-slate-200 text-slate-600 flex items-center justify-center font-bold">
-                        {rw.rw}
-                      </div>
-                      <div>
-                        <h2 className="text-base font-bold text-slate-800">
-                          {rw.rw} Bubulak {rw.namaCluster ? `• Cluster ${rw.namaCluster}` : ''}
-                        </h2>
-                        <p className="text-xs text-slate-500">
-                          Status: Dalam proses verifikasi lampiran fisik
-                        </p>
-                      </div>
-                    </div>
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200 self-start sm:self-auto">
-                      <Clock className="w-3.5 h-3.5 text-amber-600" />
-                      Dalam Antrean Digitalisasi SK
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-600 leading-relaxed bg-white p-3.5 rounded-xl border border-slate-200">
-                    Lampiran fisik SK Pengurus untuk {rw.rw} sedang dalam proses verifikasi dan pengetikan digital ke dalam sistem. Hubungi Sekretariat TP-PKK Kelurahan Bubulak untuk melihat dokumen fisik asli.
-                  </p>
-                </article>
-              );
-            }
 
             // Kartu RW Terverifikasi SK
             return (
