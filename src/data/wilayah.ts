@@ -2,7 +2,7 @@
  * Metadata Master Wilayah Administratif Kelurahan Bubulak
  * Kecamatan Bogor Barat, Kota Bogor
  * Berdasarkan SK Lurah Bubulak Nomor 147/BBLK/Juni 2026
- * Terdiri dari 13 RW (RW 01 s/d RW 13), 50 RT, dan 226 Kelompok Dasawisma
+ * tentang Pengangkatan Pengurus Kelompok Dasawisma TP-PKK Kelurahan Bubulak
  */
 
 export interface RTInfo {
@@ -28,16 +28,16 @@ export const KELURAHAN_INFO = {
   provinsi: 'Jawa Barat',
   kodeWilayah: '32.71.04.1004',
   totalRW: 13,
-  totalRT: 50,
-  totalDasawisma: 226,
+  totalRT: 52,
+  totalDasawisma: 242,
   skLurah: 'SK Lurah Bubulak No. 147/BBLK/Juni 2026',
   pilotRW: 'RW 10 & RW 11',
 };
 
 export const RW_TARGET_MAP: Record<string, { rt: number; dasawisma: number; name: string; cluster?: string }> = {
-  'RW 01': { rt: 4, dasawisma: 18, name: 'RW 01' },
+  'RW 01': { rt: 5, dasawisma: 27, name: 'RW 01', cluster: 'Teratai' },
   'RW 02': { rt: 4, dasawisma: 22, name: 'RW 02', cluster: 'Melati 1.1 - 4.3' },
-  'RW 03': { rt: 4, dasawisma: 18, name: 'RW 03' },
+  'RW 03': { rt: 5, dasawisma: 25, name: 'RW 03', cluster: 'Flamboyan' },
   'RW 04': { rt: 5, dasawisma: 21, name: 'RW 04', cluster: 'Kenanga 1.1 - 5.4' },
   'RW 05': { rt: 3, dasawisma: 12, name: 'RW 05', cluster: 'Mawar 1.1 - 3.4' },
   'RW 06': { rt: 3, dasawisma: 10, name: 'RW 06', cluster: 'Cempaka 1.1 - 2.3' },
@@ -55,12 +55,14 @@ export const DAFTAR_RW_BUBULAK: RWInfo[] = [
     id: '01',
     code: 'RW 01',
     name: 'RW 01 Bubulak',
-    dasawismaTarget: 18,
+    dasawismaTarget: 27,
+    keterangan: 'Teratai',
     rtList: [
-      { id: '01', name: 'RT 01', dasawismaCount: 5 },
-      { id: '02', name: 'RT 02', dasawismaCount: 5 },
-      { id: '03', name: 'RT 03', dasawismaCount: 4 },
-      { id: '04', name: 'RT 04', dasawismaCount: 4 },
+      { id: '01', name: 'RT 01', dasawismaCount: 7 },
+      { id: '02', name: 'RT 02', dasawismaCount: 7 },
+      { id: '03', name: 'RT 03', dasawismaCount: 5 },
+      { id: '04', name: 'RT 04', dasawismaCount: 5 },
+      { id: '05', name: 'RT 05', dasawismaCount: 3 },
     ],
   },
   {
@@ -72,20 +74,22 @@ export const DAFTAR_RW_BUBULAK: RWInfo[] = [
     rtList: [
       { id: '01', name: 'RT 01', dasawismaCount: 6 },
       { id: '02', name: 'RT 02', dasawismaCount: 6 },
-      { id: '03', name: 'RT 03', dasawismaCount: 5 },
-      { id: '04', name: 'RT 04', dasawismaCount: 5 },
+      { id: '03', name: 'RT 03', dasawismaCount: 7 },
+      { id: '04', name: 'RT 04', dasawismaCount: 3 },
     ],
   },
   {
     id: '03',
     code: 'RW 03',
     name: 'RW 03 Bubulak',
-    dasawismaTarget: 18,
+    dasawismaTarget: 25,
+    keterangan: 'Flamboyan',
     rtList: [
-      { id: '01', name: 'RT 01', dasawismaCount: 5 },
-      { id: '02', name: 'RT 02', dasawismaCount: 5 },
-      { id: '03', name: 'RT 03', dasawismaCount: 4 },
+      { id: '01', name: 'RT 01', dasawismaCount: 4 },
+      { id: '02', name: 'RT 02', dasawismaCount: 7 },
+      { id: '03', name: 'RT 03', dasawismaCount: 5 },
       { id: '04', name: 'RT 04', dasawismaCount: 4 },
+      { id: '05', name: 'RT 05', dasawismaCount: 5 },
     ],
   },
   {
@@ -95,10 +99,10 @@ export const DAFTAR_RW_BUBULAK: RWInfo[] = [
     dasawismaTarget: 21,
     keterangan: 'Kenanga 1.1 - 5.4',
     rtList: [
-      { id: '01', name: 'RT 01', dasawismaCount: 5 },
+      { id: '01', name: 'RT 01', dasawismaCount: 4 },
       { id: '02', name: 'RT 02', dasawismaCount: 4 },
       { id: '03', name: 'RT 03', dasawismaCount: 4 },
-      { id: '04', name: 'RT 04', dasawismaCount: 4 },
+      { id: '04', name: 'RT 04', dasawismaCount: 5 },
       { id: '05', name: 'RT 05', dasawismaCount: 4 },
     ],
   },

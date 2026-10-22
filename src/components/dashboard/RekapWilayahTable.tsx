@@ -81,7 +81,7 @@ export function RekapWilayahTable({
               Tabel Rekapitulasi Wilayah & Progres Digital
             </h2>
             <p className="text-xs text-slate-600 font-medium">
-              Target SK Lurah Bubulak No. 147/BBLK/Juni 2026 (50 RT & 226 Dasawisma) vs Realisasi Digital
+              Target SK Lurah Bubulak No. 147/BBLK/Juni 2026 vs Realisasi Digital Lapangan
             </p>
           </div>
         </div>
@@ -293,7 +293,7 @@ export function RekapWilayahTable({
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs text-slate-600 pt-2 gap-2">
         <span className="font-medium">
-          Master Baku: 13 RW • 50 RT • 226 Kelompok Dasawisma (Realisasi Input Digital: RW 10 & RW 11)
+          Master Baku: {data.length} RW • {grandTotal.totalRT} RT • {grandTotal.totalDasawisma} Kelompok Dasawisma (Realisasi Input Digital: RW 10 & RW 11)
         </span>
         <span className="text-[11px] text-slate-500 italic">
           *Tanda (-) menandakan RW sedang dalam tahap penyelesaian pendataan lapangan oleh kader
